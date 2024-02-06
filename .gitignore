@@ -146,7 +146,10 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# pytype static type analyzer
+#
+
+
+ pytype static type analyzer
 .pytype/
 
 # Cython debug symbols
@@ -158,3 +161,7 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+*.parquet
+*.ttf
+*.png
+/data
