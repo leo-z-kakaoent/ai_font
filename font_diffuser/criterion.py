@@ -6,7 +6,7 @@ import torchvision
 class VGG16(nn.Module):
     def __init__(self):
         super(VGG16, self).__init__()
-        vgg16 = torchvision.models.vgg16(pretrained=True)
+        vgg16 = torchvision.models.vgg16(weights='VGG16_Weights.DEFAULT')
 
         self.enc_1 = nn.Sequential(*vgg16.features[:5])
         self.enc_2 = nn.Sequential(*vgg16.features[5:10])

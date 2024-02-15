@@ -40,7 +40,7 @@ def build_unet(args):
 def build_style_encoder(args):
     style_image_encoder = StyleEncoder(
         G_ch=args.style_start_channel,
-        resolution=args.style_image_size[0])
+        resolution=args.style_image_size)
     print("Get CG-GAN Style Encoder!")
     return style_image_encoder
 
@@ -48,7 +48,7 @@ def build_style_encoder(args):
 def build_content_encoder(args):
     content_image_encoder = ContentEncoder(
         G_ch=args.content_start_channel,
-        resolution=args.content_image_size[0])
+        resolution=args.content_image_size)
     print("Get CG-GAN Content Encoder!")
     return content_image_encoder
 

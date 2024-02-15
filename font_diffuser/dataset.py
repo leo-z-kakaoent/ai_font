@@ -25,56 +25,6 @@ class CollateFN(object):
         
         return batched_data
 
-    
-# Sample, Positive, Negative. By Style
-class FontDataset(Dataset):
-
-    def __init__(self, path, num_neg=4):
-        super().__init__()
-        self.path = path
-        self.resolution = 96 # default
-        self.num_neg = num_neg
-        self.all_files = [path+"pngs/"+f for f in os.listdir(path+"pngs/") if ".png" in f]
-        self.all_korean_letters = pd.read_parquet(path+"all_korean.parquet")
-        self.transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize([0.5], [0.5])
-        ])
-        
-    def __len__(self):
-        return len(self.all_files)
-        
-    def __getitem__(self, index):
-        sample_img_path = self.all_files[index]
-        sample_img_name = sample_img_path.replace(".png","").split('__')
-        style = sample_img_name[0]
-        
-        pos_img_paths = [f for f in self.all_files if (style in f) & (sample_img_path != f)]
-        pos_img_path = random.choice(pos_img_paths)
-        
-        sample_img = self.transform(Image.open(sample_img_path).convert("RGB"))
-        pos_img = self.transform(Image.open(pos_img_path).convert("RGB"))
-        
-        neg_imgs = []
-        neg_img_paths = [f for f in self.all_files if (style not in f) & ("__%s"%sample_img_name[1] in f)]
-        for _ in range(self.num_neg):
-            neg_img_path = random.choice(neg_img_paths)
-            neg_imgs.append(self.transform(Image.open(neg_img_path).convert("RGB")))
-        
-        # sample_img = Image.open(sample_img_path).convert("RGB")
-        # pos_img = Image.open(pos_img_path).convert("RGB")
-        # neg_img = Image.open(neg_img_path).convert("RGB")
-        
-        return sample_img, pos_img, torch.stack(neg_imgs)
-    
-    
-import os
-import random
-from PIL import Image
-
-import torch
-from torch.utils.data import Dataset
-import torchvision.transforms as transforms
 
 def get_normal_transform():
     normal_transform = transforms.Compose([
@@ -93,7 +43,7 @@ class FontDataset(Dataset):
         super().__init__()
         self.path = path
         self.num_neg = num_neg
-        self.all_files = [path+"pngs/"+f for f in os.listdir(path+"pngs/") if ".png" in f]
+        self.target_images = [path+"pngs/"+f for f in os.listdir(path+"pngs/") if ".png" in f]
         self.all_korean_letters = pd.read_parquet(path+"all_korean.parquet")
         self.phase = phase
         self.scr = scr
@@ -106,15 +56,14 @@ class FontDataset(Dataset):
     def __getitem__(self, index):
         target_image_path = self.target_images[index]
         target_image_name = target_image_path.split('/')[-1]
-        style, content = target_image_name.split('.')[0].split('+')
+        style, content = target_image_name.split(".png")[0].split("__")
         
         # Read content image
-        content_image_path = f"{self.root}/{self.phase}/ContentImage/{content}.jpg"
+        content_image_path = f"{self.path}pngs/gulim__{content}.png"
         content_image = Image.open(content_image_path).convert('RGB')
 
         # Random sample used for style image
-        images_related_style = self.style_to_images[style].copy()
-        images_related_style.remove(target_image_path)
+        images_related_style = [f for f in self.target_images if (style in f)&("__"+content not in f)]
         style_image_path = random.choice(images_related_style)
         style_image = Image.open(style_image_path).convert("RGB")
         
@@ -122,10 +71,9 @@ class FontDataset(Dataset):
         target_image = Image.open(target_image_path).convert("RGB")
         nonorm_target_image = self.nonorm_transforms(target_image)
 
-        if self.transforms is not None:
-            content_image = self.transforms[0](content_image)
-            style_image = self.transforms[1](style_image)
-            target_image = self.transforms[2](target_image)
+        content_image = self.transforms(content_image)
+        style_image = self.transforms(style_image)
+        target_image = self.transforms(target_image)
         
         sample = {
             "content_image": content_image,
@@ -136,22 +84,15 @@ class FontDataset(Dataset):
         
         if self.scr:
             # Get neg image from the different style of the same content
-            style_list = list(self.style_to_images.keys())
-            style_index = style_list.index(style)
-            style_list.pop(style_index)
+            neg_names = [f for f in self.target_images if (style not in f)&("__"+content in f)]
             choose_neg_names = []
             for i in range(self.num_neg):
-                choose_style = random.choice(style_list)
-                choose_index = style_list.index(choose_style)
-                style_list.pop(choose_index)
-                choose_neg_name = f"{self.root}/train/TargetImage/{choose_style}/{choose_style}+{content}.jpg"
-                choose_neg_names.append(choose_neg_name)
+                choose_neg_names.append(random.choice(neg_names))
 
             # Load neg_images
             for i, neg_name in enumerate(choose_neg_names):
                 neg_image = Image.open(neg_name).convert("RGB")
-                if self.transforms is not None:
-                    neg_image = self.transforms[2](neg_image)
+                neg_image = self.transforms(neg_image)
                 if i == 0:
                     neg_images = neg_image[None, :, :, :]
                 else:

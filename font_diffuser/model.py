@@ -11,7 +11,6 @@ class FontDiffuserModel(ModelMixin, ConfigMixin):
         style encoder and unet.
     """
 
-    @register_to_config
     def __init__(
         self, 
         unet, 
