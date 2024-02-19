@@ -57,6 +57,6 @@ nonorm_target_images = samples["nonorm_target_image"].cuda()
 a = style_images[[1]]
 try:
     s = style_encoder.cuda()
-    s(a)
+    print(s(a))
 except Error as error:
     print(error)
