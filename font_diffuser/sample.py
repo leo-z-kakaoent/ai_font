@@ -61,14 +61,14 @@ def image_process(args, content_image=None, style_image=None):
 
     return content_image, style_image, content_image_pil
 
-def load_fontdiffuer_pipeline(args):
+def load_fontdiffuer_pipeline(args, model_i):
     # Load the model state_dict
     unet = build_unet(args=args)
-    unet.load_state_dict(torch.load(f"{args.ckpt_dir}/unet.pth"))
+    unet.load_state_dict(torch.load(f"{args.ckpt_dir}/unet_%s.pth"%str(model_i)))
     style_encoder = build_style_encoder(args=args)
-    style_encoder.load_state_dict(torch.load(f"{args.ckpt_dir}/style_encoder.pth"))
+    style_encoder.load_state_dict(torch.load(f"{args.ckpt_dir}/style_encoder_%s.pth"%str(model_i)))
     content_encoder = build_content_encoder(args=args)
-    content_encoder.load_state_dict(torch.load(f"{args.ckpt_dir}/content_encoder.pth"))
+    content_encoder.load_state_dict(torch.load(f"{args.ckpt_dir}/content_encoder_%s.pth"%str(model_i)))
     model = FontDiffuserModelDPM(
         unet=unet,
         style_encoder=style_encoder,
