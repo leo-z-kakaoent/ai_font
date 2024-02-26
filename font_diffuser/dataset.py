@@ -39,16 +39,15 @@ def get_nonorm_transform():
 
 
 class FontDataset(Dataset):
-    def __init__(self, path, phase, num_neg=4, scr=False):
+    def __init__(self, path, num_neg=4, scr=False):
         super().__init__()
         self.path = path
         self.num_neg = num_neg
         self.target_images = [path+"pngs/"+f for f in os.listdir(path+"pngs/") if ".png" in f]
         self.all_korean_letters = pd.read_parquet(path+"all_korean.parquet")
-        self.phase = phase
         self.scr = scr
         if self.scr:
-            self.num_neg = nug_neg
+            self.num_neg = num_neg
         
         self.transforms = get_normal_transform()
         self.nonorm_transforms = get_nonorm_transform()
