@@ -78,10 +78,10 @@ class TrainPhase2Args:
         self.seed=123
         self.experience_name="FontDiffuser_training_phase_2"
         self.phase_2 = True
-        self.scr_path="data/m40216/scr_87.pth"
-        self.content_encoder_path="data/m40216/content_encoder_280000.pth"
-        self.style_encoder_path="data/m40216/style_encoder_280000.pth"
-        self.unet_path="data/m40216/unet_280000.pth"
+        self.scr_path="data/m40216/scr_99.pth"
+        self.content_encoder_path="data/m40216/content_encoder_430000.pth"
+        self.style_encoder_path="data/m40216/style_encoder_430000.pth"
+        self.unet_path="data/m40216/unet_430000.pth"
         
         self.temperature=0.07
         self.mode="refinement"

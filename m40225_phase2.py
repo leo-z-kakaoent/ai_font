@@ -177,4 +177,7 @@ for epoch in range(num_train_epochs):
         if global_step >= args.max_train_steps:
             break
 
+torch.save(unet.state_dict(), "data/m40216/unet_p2_%s.pth"%str(global_step))
+torch.save(style_encoder.state_dict(), "data/m40216/style_encoder_p2_%s.pth"%str(global_step))
+torch.save(content_encoder.state_dict(), "data/m40216/content_encoder_p2_%s.pth"%str(global_step))
 accelerator.end_training()
