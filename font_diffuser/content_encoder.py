@@ -12,7 +12,7 @@ from diffusers.configuration_utils import (ConfigMixin,
 
 
 def proj(x, y):
-   return torch.mm(y, x.t()) * y / torch.mm(y, y.t())
+    return torch.mm(y, x.t()) * y / torch.mm(y, y.t())
 
 
 def gram_schmidt(x, ys):
