@@ -109,7 +109,7 @@ class Projector(nn.Module):
 
 def make_layers(cfg, batch_norm=True):
     layers = []
-    in_channels = 3
+    in_channels = 32
     for v in cfg:
         if v == 'M':
             layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
@@ -123,5 +123,5 @@ def make_layers(cfg, batch_norm=True):
     return nn.Sequential(*layers)
 
 
-vgg = make_layers([3, 64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 
+vgg = make_layers([32, 64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 
           512, 512, 512, 512, 'M', 512, 512, 'M', 512, 512, 'M'])
