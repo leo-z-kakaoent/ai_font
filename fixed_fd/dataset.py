@@ -58,28 +58,39 @@ class FontDataset(Dataset):
         style, content = target_image_name.split(".png")[0].split("__")
         
         # Read content image
-        content_image_path = f"{self.path}pngs/gulim__{content}.png"
-        content_image = Image.open(content_image_path).convert('RGB')
+        # content_image_path = f"{self.path}pngs/gulim__{content}.png"
+        # content_image = Image.open(content_image_path).convert('RGB')
 
-        # Random sample used for style image
-        images_related_style = [f for f in self.target_images if (style in f)&("__"+content not in f)]
-        style_image_path = random.choice(images_related_style)
-        style_image = Image.open(style_image_path).convert("RGB")
         
         # Read target image
         target_image = Image.open(target_image_path).convert("RGB")
         nonorm_target_image = self.nonorm_transforms(target_image)
 
-        content_image = self.transforms(content_image)
-        style_image = self.transforms(style_image)
+        # content_image = self.transforms(content_image)
+        # style_image = self.transforms(style_image)
         target_image = self.transforms(target_image)
         
         sample = {
-            "content_image": content_image,
-            "style_image": style_image,
+            # "content_image": content_image,
             "target_image": target_image,
             "target_image_path": target_image_path,
             "nonorm_target_image": nonorm_target_image}
+        
+        # Random sample used for style image
+        images_related_style = [f for f in self.target_images if (style in f)&("__"+content not in f)]
+        choose_style_names = []
+        for i in range(32):
+            choose_style_names.append(random.choice(images_related_style))
+
+        # Load style_images
+        for i, style_name in enumerate(choose_style_names):
+            style_image = Image.open(style_name).convert("L")
+            style_image = self.transforms(style_image)
+            if i == 0:
+                style_images = style_image[:, None, :, :]
+            else:
+                style_images = torch.cat([style_images, style_image[:, None, :, :]], dim=1)
+        sample["style_image"] = style_images    
         
         if self.scr:
             # Get neg image from the different style of the same content

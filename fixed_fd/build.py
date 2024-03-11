@@ -40,7 +40,8 @@ def build_unet(args):
 def build_style_encoder(args):
     style_image_encoder = StyleEncoder(
         G_ch=args.style_start_channel,
-        resolution=args.style_image_size)
+        resolution=args.style_image_size,
+        input_nc = 32)
     print("Get CG-GAN Style Encoder!")
     return style_image_encoder
 
