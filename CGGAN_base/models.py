@@ -705,23 +705,6 @@ class Decoder(nn.Module):
                 elif index == 4:
                     h = torch.cat((h, residual_features[1]), dim=1)
 
-            if self.resolution == 256:
-                if index == 0:
-                    h = torch.cat((h, style_emd), dim=1)
-                    h = h.permute(0, 2, 3, 1)
-                    h = self.linear_mix(h)
-                    h = h.permute(0, 3, 1, 2)
-                elif index == 1:
-                    h = torch.cat((h, residual_features_style[5]), dim=1)
-                elif index == 2:
-                    h = torch.cat((h, residual_features[4]), dim=1)
-                elif index == 3:
-                    h = torch.cat((h, residual_features[3]), dim=1)
-                elif index == 4:
-                    h = torch.cat((h, residual_features[2]), dim=1)
-                elif index == 5:
-                    h = torch.cat((h, residual_features[1]), dim=1)
-
             for block in blocklist:
                 h = block(h)
 
