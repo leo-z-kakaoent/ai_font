@@ -51,8 +51,9 @@ for epoch in tqdm(range(n_epoch)):
         real_out = discriminator(data['target'])
         fake_out = discriminator(img_print2write)
 
-        loss_D = criterionD(real_out, True) + criterionD(fake_out, False)
-        loss_G = criterionD(fake_out, True)
+        loss_D = criterionD(real_out, torch.BoolTensor(True).to(accelerator.device)) + \
+                 criterionD(fake_out, torch.BoolTensor(False).to(accelerator.device))
+        loss_G = criterionD(fake_out, torch.BoolTensor(True).to(accelerator.device))
 
         accelerator.backward(loss_D)
         optimizer_D.step()
@@ -61,7 +62,7 @@ for epoch in tqdm(range(n_epoch)):
         optimizer_G.step()
 
     save_package(
-        img_dict={f"generated{str(i)}": img_print2write[i,:,:,:] for i in range(len(img_print2write))},
+        img_dict={f"generated{str(i)}": img_print2write[i,:,:,:].detach().cpu().numpy() for i in range(len(img_print2write))},
         model_dict={
             "content_encoder": content_encoder.state_dict(),
             "style_encoder": style_encoder.state_dict(),
