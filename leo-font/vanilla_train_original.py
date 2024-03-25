@@ -53,7 +53,7 @@ for epoch in tqdm(range(n_epoch)):
 
         set_requires_grad([discriminator], False)
         optimizer_G.zero_grad()
-        accelerator.backward(loss_G)
+        accelerator.backward(loss_G, retain_graph=True)
         optimizer_G.step()
 
         set_requires_grad([discriminator], True)
