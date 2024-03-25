@@ -2,12 +2,14 @@ import torch
 import itertools
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+import os
 
 from dataset import FontDataset
 from models import Discriminator, ContentEncoder, StyleEncoder, Decoder
 from losses import DisLoss
 from accelerate import Accelerator
 from configs import DefaultConfig
+from utils import save_package
 
 configs = DefaultConfig()
 lr = configs.lr
@@ -16,6 +18,7 @@ batch_size = configs.batch_size
 g_ch = configs.G_ch
 n_embedding = configs.n_embedding
 n_epoch = configs.n_epoch
+save_path = configs.save_path
 
 accelerator = Accelerator()
 dataset = FontDataset(path=dataset_path)
@@ -56,3 +59,15 @@ for epoch in tqdm(range(n_epoch)):
 
         accelerator.backward(loss_G)
         optimizer_G.step()
+
+    save_package(
+        img_dict={f"generated{str(i)}": img_print2write[i, :, :, :] for i in range(len(img_print2write))},
+        model_dict={
+            "content_encoder": content_encoder.state_dict(),
+            "style_encoder": style_encoder.state_dict(),
+            "decoder": decoder.state_dict(),
+            "discriminator": discriminator.state_dict()
+        },
+        path=save_path,
+        prefix=os.path.basename(__file__).replace(".py", ""),
+    )

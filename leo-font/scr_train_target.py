@@ -3,12 +3,14 @@ import torch.nn.functional as F
 import itertools
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+import os
 
 from dataset import SCRDataset
 from models import Discriminator, ContentEncoder, StyleEncoder, Decoder, SCR
 from losses import DisLoss
 from accelerate import Accelerator
 from configs import SCRConfig
+from utils import save_package
 
 configs = SCRConfig()
 batch_size = configs.batch_size
@@ -20,6 +22,7 @@ scr_dataset_path = configs.scr_dataset_path
 scr_model_path = configs.scr_model_path
 n_epoch = configs.n_epoch
 scr_coef = configs.scr_coef
+save_path = configs.save_path
 
 accelerator = Accelerator()
 dataset = SCRDataset(path=dataset_path, scr_fd=scr_dataset_path)
@@ -76,3 +79,15 @@ for epoch in tqdm(range(n_epoch)):
 
         accelerator.backward(loss_G)
         optimizer_G.step()
+
+    save_package(
+        img_dict={f"generated{str(i)}": img_print2write[i, :, :, :] for i in range(len(img_print2write))},
+        model_dict={
+            "content_encoder": content_encoder.state_dict(),
+            "style_encoder": style_encoder.state_dict(),
+            "decoder": decoder.state_dict(),
+            "discriminator": discriminator.state_dict()
+        },
+        path=save_path,
+        prefix=os.path.basename(__file__).replace(".py", ""),
+    )

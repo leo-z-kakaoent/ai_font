@@ -1,15 +1,18 @@
 import os
+import sys
 
 class DefaultConfig:
     def __init__(self):
+        self.curfile = os.path.basename(__file__)
         self.curdir = os.path.dirname(os.path.abspath(__file__))
         self.main_path = self.curdir.replace("/leo-font", "")
         self.lr = 0.0001
         self.dataset_path = f"{self.main_path}/data/raw_png_128/"
-        self.batch_size = 64
+        self.batch_size = 32
         self.G_ch = 64
         self.n_embedding = 1024
         self.n_epoch = 1000
+        self.save_path = f"{self.main_path}/data/training/"
 
 class SCRConfig(DefaultConfig):
     def __init__(self):
