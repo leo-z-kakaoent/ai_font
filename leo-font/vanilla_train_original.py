@@ -48,13 +48,20 @@ for epoch in tqdm(range(n_epoch)):
         real_out = discriminator(data['target'])
         fake_out = discriminator(img_print2write)
 
-        loss_D = criterionD(real_out.clone(), True) + criterionD(fake_out.clone(), False)
-        loss_G = criterionD(fake_out.clone(), True)
+        loss_G = criterionD(fake_out, True)
 
         set_requires_grad([discriminator], False)
         optimizer_G.zero_grad()
-        accelerator.backward(loss_G, retain_graph=True)
+        accelerator.backward(loss_G)
         optimizer_G.step()
+
+        cont, residulte_features = content_encoder(data['content'])
+        style_emb, style_fc, residual_features_style = style_encoder(data['style'])
+        img_print2write = decoder(cont, residulte_features, style_emb, style_fc, residual_features_style)
+
+        fake_out = discriminator(img_print2write)
+        real_out = discriminator(data['target'])
+        loss_D = criterionD(real_out, True) + criterionD(fake_out, False)
 
         set_requires_grad([discriminator], True)
         optimizer_D.zero_grad()
