@@ -51,9 +51,9 @@ for epoch in tqdm(range(n_epoch)):
         real_out = discriminator(data['target'])
         fake_out = discriminator(img_print2write)
 
-        loss_D = criterionD(real_out, torch.BoolTensor(True).to(accelerator.device)) + \
-                 criterionD(fake_out, torch.BoolTensor(False).to(accelerator.device))
-        loss_G = criterionD(fake_out, torch.BoolTensor(True).to(accelerator.device))
+        loss_D = criterionD(real_out, torch.ones_like(real_out).to(accelerator.device)) + \
+                 criterionD(fake_out, torch.zeros_like(fake_out).to(accelerator.device))
+        loss_G = criterionD(fake_out, torch.ones_like(fake_out).to(accelerator.device))
 
         accelerator.backward(loss_D)
         optimizer_D.step()

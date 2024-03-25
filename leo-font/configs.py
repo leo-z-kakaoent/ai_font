@@ -8,7 +8,7 @@ class DefaultConfig:
         self.main_path = self.curdir.replace("/leo-font", "")
         self.lr = 0.0001
         self.dataset_path = f"{self.main_path}/data/raw_png_128/"
-        self.batch_size = 16
+        self.batch_size = 64
         self.G_ch = 64
         self.n_embedding = 1024
         self.n_epoch = 1000
