@@ -7,16 +7,23 @@ from dataset import FontDataset
 from models import Discriminator, ContentEncoder, StyleEncoder, Decoder
 from losses import DisLoss
 from accelerate import Accelerator
+from configs import DefaultConfig
 
-lr = 0.0002
+configs = DefaultConfig()
+lr = configs.lr
+dataset_path = configs.dataset_path
+batch_size = configs.batch_size
+g_ch = configs.G_ch
+n_embedding = configs.n_embedding
+n_epoch = configs.n_epoch
 
 accelerator = Accelerator()
-dataset = FontDataset(path="../../data/raw/")
-dataloader = torch.utils.data.DataLoader(dataset, batch_size=64, shuffle=True)
+dataset = FontDataset(path=dataset_path)
+dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
 discriminator = Discriminator()
-content_encoder = ContentEncoder(G_ch=64)
-style_encoder = StyleEncoder(G_ch=64)
-decoder = Decoder(G_ch=64, nEmbedding=1024)
+content_encoder = ContentEncoder(G_ch=g_ch)
+style_encoder = StyleEncoder(G_ch=g_ch)
+decoder = Decoder(G_ch=g_ch, nEmbedding=n_embedding)
 
 optimizer_G = torch.optim.Adam(itertools.chain(
     content_encoder.parameters(),
@@ -29,7 +36,7 @@ criterionD = DisLoss()
 dataloader, content_encoder, style_encoder, decoder, discriminator, optimizer_D, optimizer_G = accelerator.prepare(
     dataloader, content_encoder, style_encoder, decoder, discriminator, optimizer_D, optimizer_G)
 
-for epoch in tqdm(range(100)):
+for epoch in tqdm(range(n_epoch)):
     for data in dataloader:
         optimizer_D.zero_grad()
         optimizer_G.zero_grad()
