@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 import itertools
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -14,15 +15,14 @@ batch_size = configs.batch_size
 lr = configs.lr
 g_ch = configs.G_ch
 n_embedding = configs.n_embedding
+dataset_path = configs.dataset_path
 scr_dataset_path = configs.scr_dataset_path
 scr_model_path = configs.scr_model_path
 n_epoch = configs.n_epoch
 scr_coef = configs.scr_coef
 
-
-
 accelerator = Accelerator()
-dataset = SCRDataset(path=scr_dataset_path)
+dataset = SCRDataset(path=dataset_path, scr_fd=scr_dataset_path)
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
 discriminator = Discriminator()
 content_encoder = ContentEncoder(G_ch=g_ch)
@@ -59,7 +59,7 @@ for epoch in tqdm(range(n_epoch)):
         fake_out = discriminator(img_print2write)
 
         sample_style_embeddings, pos_style_embeddings, neg_style_embeddings = scr(
-            img_print2write,
+            F.interpolate(img_print2write, size=(96, 96), mode='bilinear', align_corners=False),
             data['target'],
             data['negative'],
             nce_layers='0,1,2,3')
