@@ -14,7 +14,7 @@ class FontDataset(Dataset):
         self.path = path
         self.resolution = 128
         self.content_name = content_name
-        self.all_files = [path + "pngs/" + f for f in os.listdir(path + "pngs/") if ".png" in f]
+        self.all_files = [path + f for f in os.listdir(path) if ".png" in f]
         self.all_korean_letters = pd.read_parquet(path + "all_korean.parquet")
         self.transform = transforms.Compose([
             transforms.ToTensor(),
@@ -30,7 +30,7 @@ class FontDataset(Dataset):
         style = target_img_name[0]
         content = target_img_name[1]
 
-        content_img_paths = self.path + "pngs/" + self.content_name + "__" + content + ".png"
+        content_img_paths = self.path + self.content_name + "__" + content + ".png"
         style_img_paths = [f for f in self.all_files if (style in f) & (target_img_path != f)]
         style_img_path = random.choice(style_img_paths)
 
