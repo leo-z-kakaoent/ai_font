@@ -798,7 +798,7 @@ class GBlock2(nn.Module):
 import torch
 
 import torch.nn as nn
-import font_diffuser.scr_modules as SCRModules
+import scr_modules as SCRModules
 
 from info_nce import InfoNCE
 import kornia.augmentation as K
