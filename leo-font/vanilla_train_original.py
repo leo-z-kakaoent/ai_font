@@ -48,8 +48,8 @@ for epoch in tqdm(range(n_epoch)):
         real_out = discriminator(data['target'])
         fake_out = discriminator(img_print2write)
 
-        loss_D = criterionD(real_out, True) + criterionD(fake_out, False)
-        loss_G = criterionD(fake_out, True)
+        loss_D = criterionD(real_out.clone(), True) + criterionD(fake_out.clone(), False)
+        loss_G = criterionD(fake_out.clone(), True)
 
         set_requires_grad([discriminator], False)
         optimizer_G.zero_grad()
