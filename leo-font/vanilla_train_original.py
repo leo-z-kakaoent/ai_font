@@ -9,7 +9,7 @@ from models import Discriminator, ContentEncoder, StyleEncoder, Decoder
 from losses import DisLoss
 from accelerate import Accelerator
 from configs import DefaultConfig
-from utils import save_package
+from utils import save_package, set_requires_grad
 
 configs = DefaultConfig()
 lr = configs.lr
@@ -41,9 +41,6 @@ dataloader, content_encoder, style_encoder, decoder, discriminator, criterionD, 
 
 for epoch in tqdm(range(n_epoch)):
     for data in dataloader:
-        optimizer_D.zero_grad()
-        optimizer_G.zero_grad()
-
         cont, residulte_features = content_encoder(data['content'])
         style_emb, style_fc, residual_features_style = style_encoder(data['style'])
         img_print2write = decoder(cont, residulte_features, style_emb, style_fc, residual_features_style)
@@ -54,11 +51,15 @@ for epoch in tqdm(range(n_epoch)):
         loss_D = criterionD(real_out, True) + criterionD(fake_out, False)
         loss_G = criterionD(fake_out, True)
 
-        accelerator.backward(loss_D)
-        optimizer_D.step()
-
+        set_requires_grad([discriminator], False)
+        optimizer_G.zero_grad()
         accelerator.backward(loss_G)
         optimizer_G.step()
+
+        set_requires_grad([discriminator], True)
+        optimizer_D.zero_grad()
+        accelerator.backward(loss_D)
+        optimizer_D.step()
 
     save_package(
         img_dict={f"generated{str(i)}": img_print2write[i,:,:,:].detach().cpu().numpy() for i in range(len(img_print2write))},

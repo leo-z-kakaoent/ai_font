@@ -12,3 +12,11 @@ def save_package(img_dict, model_dict, path, prefix):
         p = f"{path}/{prefix}__{k}_{current_time}.pth"
         torch.save(v, p)
         print(f"Saved: {p}")
+
+def set_requires_grad(nets, requires_grad=False):
+    if not isinstance(nets, list):
+        nets = [nets]
+        for net in nets:
+            if net is not None:
+                for param in net.parameters():
+                    param.requires_grad = requires_grad
