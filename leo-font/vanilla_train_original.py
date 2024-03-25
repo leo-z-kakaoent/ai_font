@@ -36,7 +36,7 @@ optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=lr)
 
 criterionD = DisLoss()
 
-dataloader, content_encoder, style_encoder, decoder, discriminator, criterionD, optimizer_G = accelerator.prepare(
+dataloader, content_encoder, style_encoder, decoder, discriminator, criterionD, optimizer_D, optimizer_G = accelerator.prepare(
     dataloader, content_encoder, style_encoder, decoder, discriminator, criterionD, optimizer_D, optimizer_G)
 
 for epoch in tqdm(range(n_epoch)):
