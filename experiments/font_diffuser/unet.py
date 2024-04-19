@@ -10,8 +10,8 @@ from diffusers.configuration_utils import (ConfigMixin,
                                            register_to_config)
 from diffusers.utils import BaseOutput, logging
 
-from font_diffuser.embeddings import TimestepEmbedding, Timesteps
-from font_diffuser.unet_blocks import DownBlock2D, UNetMidMCABlock2D, UpBlock2D, get_down_block, get_up_block
+from ai_font.experiments.font_diffuser.embeddings import TimestepEmbedding, Timesteps
+from ai_font.experiments.font_diffuser.unet_blocks import DownBlock2D, UNetMidMCABlock2D, UpBlock2D, get_down_block, get_up_block
 
 
 

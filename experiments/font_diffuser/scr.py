@@ -3,7 +3,7 @@
 import torch
 
 import torch.nn as nn
-import font_diffuser.scr_modules as SCRModules
+import ai_font.experiments.font_diffuser.scr_modules as SCRModules
 
 from info_nce import InfoNCE
 import kornia.augmentation as K
