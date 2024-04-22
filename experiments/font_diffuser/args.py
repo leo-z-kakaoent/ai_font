@@ -42,7 +42,9 @@ class TrainPhase1Args:
         
         self.unet_channels=(64, 128, 256, 512,)
         self.beta_scheduler="scaled_linear"
-        self.path = "data/r40202/"
+        self.path = "/home/jupyter/ai_font/data/zipfiles/raw/size96/seen/"
+        self.save_path = "experiments"
+        self.bucket_name = 'leo_font'
         self.adam_beta1 = 0.9
         self.adam_beta2 = 0.999
         self.adam_weight_decay = 1e-2
@@ -50,7 +52,7 @@ class TrainPhase1Args:
         self.max_grad_norm = 1.0
         
         self.seed = 123
-        self.experience_name = "FontDiffuser_training_phase_1"
+        self.experiment_name = "FontDiffuser_training_phase_1"
         self.resolution=96
         self.style_image_size=96
         self.content_image_size=96 

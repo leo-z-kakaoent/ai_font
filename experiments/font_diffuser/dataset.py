@@ -43,8 +43,7 @@ class FontDataset(Dataset):
         super().__init__()
         self.path = path
         self.num_neg = num_neg
-        self.target_images = [path+"pngs/"+f for f in os.listdir(path+"pngs/") if ".png" in f]
-        self.all_korean_letters = pd.read_parquet(path+"all_korean.parquet")
+        self.target_images = [path+f for f in os.listdir(path) if ".png" in f]
         self.scr = scr
         if self.scr:
             self.num_neg = num_neg
@@ -58,7 +57,7 @@ class FontDataset(Dataset):
         style, content = target_image_name.split(".png")[0].split("__")
         
         # Read content image
-        content_image_path = f"{self.path}pngs/gulim__{content}.png"
+        content_image_path = f"{self.path}gulim__{content}.png"
         content_image = Image.open(content_image_path).convert('RGB')
 
         # Random sample used for style image
