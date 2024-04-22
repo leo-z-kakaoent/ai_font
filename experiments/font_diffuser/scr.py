@@ -3,7 +3,19 @@
 import torch
 
 import torch.nn as nn
-import ai_font.experiments.font_diffuser.scr_modules as SCRModules
+import sys
+import importlib
+
+def call_module(nm, path):
+    spec = importlib.util.spec_from_file_location(nm, path)
+    foo = importlib.util.module_from_spec(spec)
+    sys.modules[nm] = foo
+    spec.loader.exec_module(foo)
+    return foo
+
+fd = "/home/jupyter/ai_font/experiments/font_diffuser"
+SCRModules = call_module('SCRModules', f"{fd}/scr_modules.py")
+
 
 from info_nce import InfoNCE
 import kornia.augmentation as K

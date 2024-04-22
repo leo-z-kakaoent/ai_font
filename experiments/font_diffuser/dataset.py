@@ -1,4 +1,4 @@
-aimport os
+import os
 import random
 from PIL import Image
 

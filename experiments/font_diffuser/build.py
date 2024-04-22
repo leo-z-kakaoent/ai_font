@@ -1,8 +1,27 @@
 from diffusers.schedulers.scheduling_ddpm import DDPMScheduler
-from ai_font.experiments.font_diffuser.content_encoder import ContentEncoder
-from ai_font.experiments.font_diffuser.style_encoder import StyleEncoder
-from ai_font.experiments.font_diffuser.unet import UNet
-from ai_font.experiments.font_diffuser.scr import SCR
+
+import sys
+import importlib
+
+def call_module(nm, path):
+    spec = importlib.util.spec_from_file_location(nm, path)
+    foo = importlib.util.module_from_spec(spec)
+    sys.modules["module.name"] = foo
+    spec.loader.exec_module(foo)
+    return foo
+
+fd = "/home/jupyter/ai_font/experiments/font_diffuser"
+content_encoder = call_module('content_encoder', f"{fd}/content_encoder.py")
+ContentEncoder = content_encoder.ContentEncoder
+
+style_encoder = call_module('style_encoder', f"{fd}/style_encoder.py")
+StyleEncoder = style_encoder.StyleEncoder
+
+unet = call_module('unet', f"{fd}/unet.py")
+UNet = unet.UNet
+
+scr = call_module('scr', f"{fd}/scr.py")
+SCR = scr.SCR
 
 
 def build_unet(args):

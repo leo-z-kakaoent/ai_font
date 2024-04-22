@@ -2,8 +2,25 @@ import torch
 from torch import nn
 from torchvision.ops import DeformConv2d
 
-from ai_font.experiments.font_diffuser.attention import SpatialTransformer, OffsetRefStrucInter, ChannelAttnBlock
-from ai_font.experiments.font_diffuser.resnet import Downsample2D, ResnetBlock2D, Upsample2D
+import sys
+import importlib
+
+def call_module(nm, path):
+    spec = importlib.util.spec_from_file_location(nm, path)
+    foo = importlib.util.module_from_spec(spec)
+    sys.modules[nm] = foo
+    spec.loader.exec_module(foo)
+    return foo
+
+fd = "/home/jupyter/ai_font/experiments/font_diffuser"
+attention = call_module('attention', f"{fd}/attention.py")
+SpatialTransformer = attention.SpatialTransformer
+OffsetRefStrucInter = attention.OffsetRefStrucInter
+ChannelAttnBlock = attention.ChannelAttnBlock
+resnet = call_module('resnet', f"{fd}/resnet.py")
+Downsample2D = resnet.Downsample2D
+ResnetBlock2D = resnet.ResnetBlock2D
+Upsample2D = resnet.Upsample2D
 
 
 def get_down_block(

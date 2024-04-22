@@ -10,10 +10,28 @@ from diffusers.configuration_utils import (ConfigMixin,
                                            register_to_config)
 from diffusers.utils import BaseOutput, logging
 
-from ai_font.experiments.font_diffuser.embeddings import TimestepEmbedding, Timesteps
-from ai_font.experiments.font_diffuser.unet_blocks import DownBlock2D, UNetMidMCABlock2D, UpBlock2D, get_down_block, get_up_block
+import sys
+import importlib
 
+def call_module(nm, path):
+    spec = importlib.util.spec_from_file_location(nm, path)
+    foo = importlib.util.module_from_spec(spec)
+    sys.modules[nm] = foo
+    spec.loader.exec_module(foo)
+    return foo
 
+fd = "/home/jupyter/ai_font/experiments/font_diffuser"
+
+embeddings = call_module('TimestepEmbedding', f"{fd}/embeddings.py")
+TimestepEmbedding = embeddings.TimestepEmbedding
+Timesteps = embeddings.Timesteps
+
+unet_blocks = call_module('unet_blocks', f"{fd}/unet_blocks.py")
+DownBlock2D = unet_blocks.DownBlock2D
+UpBlock2D = unet_blocks.UpBlock2D
+get_down_block = unet_blocks.get_down_block
+get_up_block = unet_blocks.get_up_block
+UNetMidMCABlock2D = unet_blocks.UNetMidMCABlock2D
 
 @dataclass
 class UNetOutput(BaseOutput):
