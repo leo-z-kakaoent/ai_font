@@ -70,13 +70,14 @@ class FontDataset(Dataset):
         nonorm_target_image = self.nonorm_transforms(target_image)
 
         content_image = self.transforms(content_image)
-        style_image0 = self.transforms(style_image)
-        style_image1 = self.transforms(style_image)
+        style_image0 = self.transforms(style_image0)
+        style_image1 = self.transforms(style_image1)
         target_image = self.transforms(target_image)
         
         sample = {
             "content_image": content_image,
-            "style_image": [style_image0, style_image1],
+            "style_image0": style_image0,
+            "style_image1": style_image1,
             "target_image": target_image,
             "target_image_path": target_image_path,
             "nonorm_target_image": nonorm_target_image}
