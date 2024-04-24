@@ -62,22 +62,19 @@ class FontDataset(Dataset):
 
         # Random sample used for style image
         images_related_style = [f for f in self.target_images if (style in f)&("__"+content not in f)]
-        style_image0 = Image.open(random.choice(images_related_style)).convert("RGB")
-        style_image1 = Image.open(random.choice(images_related_style)).convert("RGB")
+        style_image = Image.open(random.choice(images_related_style)).convert("RGB")
         
         # Read target image
         target_image = Image.open(target_image_path).convert("RGB")
         nonorm_target_image = self.nonorm_transforms(target_image)
 
         content_image = self.transforms(content_image)
-        style_image0 = self.transforms(style_image0)
-        style_image1 = self.transforms(style_image1)
+        style_image = self.transforms(style_image)
         target_image = self.transforms(target_image)
         
         sample = {
             "content_image": content_image,
-            "style_image0": style_image0,
-            "style_image1": style_image1,
+            "style_image": style_image,
             "target_image": target_image,
             "target_image_path": target_image_path,
             "nonorm_target_image": nonorm_target_image}
