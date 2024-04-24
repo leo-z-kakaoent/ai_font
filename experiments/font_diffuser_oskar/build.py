@@ -10,7 +10,7 @@ def call_module(nm, path):
     spec.loader.exec_module(foo)
     return foo
 
-fd = "/home/jupyter/ai_font/experiments/font_diffuser_funit"
+fd = "/home/jupyter/ai_font/experiments/font_diffuser_oskar"
 content_encoder = call_module('content_encoder', f"{fd}/content_encoder.py")
 ContentEncoder = content_encoder.ContentEncoder
 

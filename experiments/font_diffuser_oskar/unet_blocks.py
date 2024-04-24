@@ -12,7 +12,7 @@ def call_module(nm, path):
     spec.loader.exec_module(foo)
     return foo
 
-fd = "/home/jupyter/ai_font/experiments/font_diffuser_funit"
+fd = "/home/jupyter/ai_font/experiments/font_diffuser_oskar"
 attention = call_module('attention', f"{fd}/attention.py")
 SpatialTransformer = attention.SpatialTransformer
 OffsetRefStrucInter = attention.OffsetRefStrucInter

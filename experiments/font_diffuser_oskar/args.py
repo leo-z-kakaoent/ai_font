@@ -52,7 +52,7 @@ class TrainPhase1Args:
         self.max_grad_norm = 1.0
         
         self.seed = 123
-        self.experiment_name = "funit_fontdiffuser_training_phase_1"
+        self.experiment_name = "oskar_fontdiffuser_training_phase_1"
         self.resolution=96
         self.style_image_size=96
         self.content_image_size=96 

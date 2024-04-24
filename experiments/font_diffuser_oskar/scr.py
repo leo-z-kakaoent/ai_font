@@ -13,7 +13,7 @@ def call_module(nm, path):
     spec.loader.exec_module(foo)
     return foo
 
-fd = "/home/jupyter/ai_font/experiments/font_diffuser_funit"
+fd = "/home/jupyter/ai_font/experiments/font_diffuser_oskar"
 SCRModules = call_module('SCRModules', f"{fd}/scr_modules.py")
 
 

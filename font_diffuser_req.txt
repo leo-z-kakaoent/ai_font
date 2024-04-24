@@ -1,0 +1,8 @@
+transformers
+diffusers
+gradio
+pyyaml
+pygame
+opencv-python
+info-nce-pytorch
+kornia
