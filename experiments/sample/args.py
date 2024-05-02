@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 
@@ -31,7 +32,7 @@ class SampleArgs:
         self.correcting_x0_fn=None
         
         self.easy = "가너디로마버소우즈치카토퍼후"
-        self.mid = "갹넌됻래몌벼슈양쟈챼켴텉픞핳",
+        self.mid = "갹넌됻래몌벼슈양쟈챼켴텉픞핳"
         self.hard = "겱냙뎳랛몊볍숎융쟧츣캷툛펆햙"
         
         self.seens = [l for i,l in enumerate(self.easy) if i % 2 == 1]
@@ -49,6 +50,6 @@ class SampleArgs:
         self.module_fd = "/home/jupyter/ai_font/experiments/font_diffuser_funit"
         self.allkorean = pd.read_parquet(f"{self.data_fd}/seen/all_korean.parquet")
         
-#         self.seens_ids = [self.allkorean[0].index[self.allkorean[0] == l].item() for l in self.seens]
-#         self.unseens_ids = [self.allkorean[0].index[self.allkorean[0] == l].item() for l in self.unseens]
+        self.seens_ids = [np.where(self.allkorean.values==l)[0].item() for l in self.seens]
+        self.unseens_ids = [np.where(self.allkorean.values==l)[0].item() for l in self.unseens]
         
