@@ -43,11 +43,10 @@ class SampleArgs:
         self.unseens += [l for i,l in enumerate(self.mid) if i % 2 == 1]
         self.unseens += [l for i,l in enumerate(self.hard) if i % 2 == 0]
 
-        self.test_fonts = ['twice dahyun_4','twice nayeon_6','UhBee Sunhong','UhBee Howl','SeoulHangang Jang B', "MapoDPP"]
+        self.test_fonts = ['twice dahyun_4','twice nayeon_6','UhBee Sunhong','UhBee Howl','SeoulHangang Jang B']
         
         self.data_fd = "/home/jupyter/ai_font/data/zipfiles/raw/size96"
         self.model_fd = "/home/jupyter/ai_font/data/model"
-        self.module_fd = "/home/jupyter/ai_font/experiments/font_diffuser_funit"
         self.allkorean = pd.read_parquet(f"{self.data_fd}/seen/all_korean.parquet")
         
         self.seens_ids = [np.where(self.allkorean.values==l)[0].item() for l in self.seens]
