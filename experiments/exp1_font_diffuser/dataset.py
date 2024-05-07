@@ -43,7 +43,7 @@ class FontDataset(Dataset):
         super().__init__()
         self.path = path
         self.num_neg = num_neg
-        self.target_images = [path+f for f in os.listdir(path) if ".png" in f]
+        self.target_images = [f"{self.path}/{f}" for f in os.listdir(path) if ".png" in f]
         self.scr = scr
         if self.scr:
             self.num_neg = num_neg
