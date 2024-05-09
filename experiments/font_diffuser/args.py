@@ -1,41 +1,4 @@
 
-class SampleArgs:
-    def __init__(self):
-        self.ckpt_dir="data/m40216"
-        self.demo=True
-        self.controlnet=False
-        self.character_input=False
-        self.content_character=None
-        self.content_image_path="data/r40202/pngs/gulim__1.png"
-        self.style_image_path='data/r40202/pngs/twice momo_6__507.png'
-        self.save_image="store_true"
-        self.save_image_dir="data/f40219/"
-        self.device="cuda:0"
-        self.ttf_path="data/r40202/ttfs/gulim.ttf"
-        self.style_image_size = 96
-        self.content_image_size = 96
-        
-        self.resolution = 96
-        self.unet_channels=(64, 128, 256, 512,)
-        self.style_start_channel=64 
-        self.channel_attn=True 
-        self.content_encoder_downsample_size=3 
-        self.content_start_channel=64 
-        self.beta_scheduler="scaled_linear"
-        self.model_type="noise"
-        self.guidance_type="classifier-free"
-        self.guidance_scale=7.5
-        self.seed = 123
-        
-        self.algorithm_type="dpmsolver++"
-        self.num_inference_steps=20
-        self.method="multistep"
-        
-        self.order=2
-        self.t_start=None
-        self.t_end=None
-        self.skip_type="time_uniform"
-        self.correcting_x0_fn=None
 
 class TrainPhase1Args:
     def __init__(self):

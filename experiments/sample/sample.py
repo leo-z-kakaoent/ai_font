@@ -79,7 +79,7 @@ def load_fontdiffuser_pipeline(args, module_fd, modelpaths):
     return pipe
 
 
-def sampling(args, pipe, content_image, style_image):
+def sampling(args, pipe, content_image, style_image, verbose=True):
     
     content_image, style_image = image_process(args=args, 
                                                 content_image=content_image, 
@@ -87,7 +87,8 @@ def sampling(args, pipe, content_image, style_image):
     with torch.no_grad():
         content_image = content_image.to(args.device)
         style_image = style_image.to(args.device)
-        print(f"Sampling by DPM-Solver++ ......")
+        if verbose:
+            print(f"Sampling by DPM-Solver++ ......")
         start = time.time()
         images = pipe.generate(
             content_images=content_image,
