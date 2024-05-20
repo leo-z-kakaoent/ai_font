@@ -2,8 +2,8 @@ import torch
 from torch import nn
 from torchvision.ops import DeformConv2d
 
-from font_diffuser.attention import SpatialTransformer, OffsetRefStrucInter, ChannelAttnBlock
-from font_diffuser.resnet import Downsample2D, ResnetBlock2D, Upsample2D
+from attention import SpatialTransformer, OffsetRefStrucInter, ChannelAttnBlock
+from resnet import Downsample2D, ResnetBlock2D, Upsample2D
 
 
 def get_down_block(

@@ -27,21 +27,29 @@ class FontDiffuserModel(ModelMixin, ConfigMixin):
         self, 
         x_t, 
         timesteps, 
-        style_images,
+        style_images0,
+        style_images1,
         content_images,
+        content_encodings,
         content_encoder_downsample_size,
     ):
-        style_img_feature, _, _ = self.style_encoder(style_images)
-    
+        style_img_feature0, _, _ = self.style_encoder(style_images0)
+        style_img_feature1, _, _ = self.style_encoder(style_images1)
+        style_img_feature = torch.stack([style_img_feature0, style_img_feature1]).mean(0)
+        
         batch_size, channel, height, width = style_img_feature.shape
         style_hidden_states = style_img_feature.permute(0, 2, 3, 1).reshape(batch_size, height*width, channel)
     
         # Get the content feature
         content_img_feature, content_residual_features = self.content_encoder(content_images)
-        content_residual_features.append(content_img_feature)
+        content_residual_features.append(torch.concat([content_img_feature,content_encodings],axis=1))
         # Get the content feature from reference image
-        style_content_feature, style_content_res_features = self.content_encoder(style_images)
-        style_content_res_features.append(style_content_feature)
+        style_content_feature0, style_content_res_features0 = self.content_encoder(style_images0)
+        style_content_feature1, style_content_res_features1 = self.content_encoder(style_images1)
+        style_content_res_features0.append(style_content_feature0)
+        style_content_res_features1.append(style_content_feature1)
+        style_content_res_features = [
+            torch.stack([f0,f1],axis=0).mean(0) for f0, f1 in zip(style_content_res_features0,style_content_res_features0)]
 
         input_hidden_states = [style_img_feature, content_residual_features, \
                                style_hidden_states, style_content_res_features]

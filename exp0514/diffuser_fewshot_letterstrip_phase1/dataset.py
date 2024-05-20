@@ -1,5 +1,6 @@
 import os
 import random
+import copy
 from PIL import Image
 
 import numpy as np
@@ -26,71 +27,74 @@ class CollateFN(object):
         return batched_data
 
 
-def get_normal_transform():
+def get_normal_transform(resolution):
     normal_transform = transforms.Compose([
+            transforms.Resize((resolution, resolution)),
             transforms.ToTensor(),
             transforms.Normalize([0.5], [0.5])
         ])
     return normal_transform
 
-def get_nonorm_transform():
-    nonorm_transform =  transforms.Compose([transforms.ToTensor()])
+def get_nonorm_transform(resolution):
+    nonorm_transform =  transforms.Compose([
+        transforms.Resize((resolution, resolution)),
+        transforms.ToTensor(),
+    ])
     return nonorm_transform
 
 
 class FontDataset(Dataset):
-    def __init__(self, path):
+    def __init__(self, args):
         super().__init__()
-        self.path = path
-        self.resolution = 96 # default
-        self.num_neg = num_neg
-        self.letter_mapper_a = pd.read_pickle(f"{path}/pickle/letter_mapper_a.pickle")
-        self.letter_mapper_b = pd.read_pickle(f"{path}/pickle/letter_mapper_b.pickle")
-        self.font_mapper = pd.read_pickle(f"{path}/pickle/font_mapper.pickle")
+        self.args = args
+        self.path = args.datapath
+        self.scr = args.scr
+        self.resolution = args.resolution # default
+        self.num_neg = args.num_neg
+        self.ces = args.content_encoding_size
+        self.letter_mapper_a = pd.read_pickle(f"{self.path}/pickle/letter_mapper_a.pickle")
+        self.letter_mapper_b = pd.read_pickle(f"{self.path}/pickle/letter_mapper_b.pickle")
+        self.font_mapper = pd.read_pickle(f"{self.path}/pickle/font_mapper.pickle")
         self.letter_mapper_ab = self.letter_mapper_a.similar + self.letter_mapper_b.similar
         self.fonts = self.font_mapper.index
         
-        self.transform = transforms.Compose([
-            transforms.Resize((self.resolution, self.resolution)),
-            transforms.ToTensor(),
-            transforms.Normalize([0.5], [0.5])
-        ])
-
         self.ak = self.get_all_korean()
-        self.onthot = {k:self.korean2label(k) for k in self.ak}        
+        self.onehot = {k:self.korean2onehot(k) for k in self.ak}        
         
-        self.transforms = get_normal_transform()
-        self.nonorm_transforms = get_nonorm_transform()
+        self.transforms = get_normal_transform(self.resolution)
+        self.nonorm_transforms = get_nonorm_transform(self.resolution)
 
     def __getitem__(self, index):
-        target_image_path = self.target_images[index]
-        target_image_name = target_image_path.split('/')[-1]
-        style, content = target_image_name.split(".png")[0].split("__")
-        content_encoding = torch.zeros([68,16,16])
-        content_encoding[np.where(self.onehot[content])[0],:,:] = 1
+        font = self.fonts[index]
+        contents = copy.deepcopy(self.font_mapper.loc[font])
         
-        # Read content image
-        content_image_path = f"{self.path}gulim__{content}.png"
-        content_image = Image.open(content_image_path).convert('RGB')
+        target_content = contents.pop(random.randint(0, len(contents)-1))
+        content_img_path = f"{self.path}/train/pngs/{self.args.content_font}__{target_content}.png"
+        
+        style_content0 = contents.pop(random.randint(0, len(contents)-1))
+        style_img_path0 = f"{self.path}/train/pngs/{font}__{style_content0}.png"
 
-        # Random sample used for style image
-        images_related_style = [f for f in self.target_images if (style in f)&("__"+content not in f)]
-        style_image_path = random.choice(images_related_style)
-        style_image = Image.open(style_image_path).convert("RGB")
+        style_content1 = contents.pop(random.randint(0, len(contents)-1))
+        style_img_path1 = f"{self.path}/train/pngs/{font}__{style_content1}.png"
         
-        # Read target image
-        target_image = Image.open(target_image_path).convert("RGB")
+        target_img_path = f"{self.path}/train/pngs/{font}__{target_content}.png"
+        
+        content_encoding = torch.zeros([68, self.ces, self.ces])
+        content_encoding[np.where(self.onehot[target_content])[0],:,:] = 1
+        
+        content_image = self.transforms(Image.open(content_img_path).convert('RGB'))
+        style_image0 = self.transforms(Image.open(style_img_path0).convert('RGB'))
+        style_image1 = self.transforms(Image.open(style_img_path1).convert('RGB'))
+        target_image = Image.open(target_img_path).convert('RGB')
         nonorm_target_image = self.nonorm_transforms(target_image)
-
-        content_image = self.transforms(content_image)
-        style_image = self.transforms(style_image)
         target_image = self.transforms(target_image)
-        
+
         sample = {
             "content_image": content_image,
-            "style_image": style_image,
+            "style_image0": style_image0,
+            "style_image1": style_image1,
             "target_image": target_image,
-            "target_image_path": target_image_path,
+            "target_image_path": target_img_path,
             "nonorm_target_image": nonorm_target_image,
             "content_encoding": content_encoding}
         
@@ -114,7 +118,7 @@ class FontDataset(Dataset):
         return sample
 
     def __len__(self):
-        return len(self.target_images)
+        return len(self.fonts)
     
     def korean2onehot(self, letter):
         ch1 = (ord(letter) - ord('가'))//588

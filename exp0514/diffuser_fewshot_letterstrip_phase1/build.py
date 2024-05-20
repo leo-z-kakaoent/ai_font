@@ -1,8 +1,8 @@
 from diffusers.schedulers.scheduling_ddpm import DDPMScheduler
-from font_diffuser.content_encoder import ContentEncoder
-from font_diffuser.style_encoder import StyleEncoder
-from font_diffuser.unet import UNet
-from font_diffuser.scr import SCR
+from content_encoder import ContentEncoder
+from style_encoder import StyleEncoder
+from unet import UNet
+from scr import SCR
 
 
 def build_unet(args):

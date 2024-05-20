@@ -19,6 +19,11 @@ def save_args_to_yaml(args, output_file):
     with open(output_file, 'w') as yaml_file:
         yaml.dump(args_dict, yaml_file, default_flow_style=False)
 
+def save_model(args, bucket, state_dict, model_name):
+    blob = bucket.blob(f"{args.savepath}/{args.experiment_name}__{model_name}.pth")
+    with blob.open("wb", ignore_flush=True) as f:
+        torch.save(state_dict, f)
+        
 
 def save_single_image(save_dir, image):
 
