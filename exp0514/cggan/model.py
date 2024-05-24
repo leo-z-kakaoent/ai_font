@@ -1,10 +1,13 @@
 import torch
 import itertools
-from .base_model import BaseModel
-from . import networks,unet
 import numpy as np
 import torch.nn.functional as F
 
+
+import networks
+import unet
+from base_model import BaseModel
+from str_converter import strLabelConverterForAttention, AttnLabelConverter, lexicontoid
 
 class CHARACTERModel(BaseModel):
     
@@ -19,17 +22,23 @@ class CHARACTERModel(BaseModel):
         
         if self.isTrain:  # define discriminators
                        
-            self.radical_path = opt.dictionaryRoot
-            alphabet_radical = open(self.radical_path).read().splitlines()
-
-            if opt.alphabet[-4:] == '.txt':
-                alphabet_char = open(opt.alphabet, 'r').read().splitlines()
-            alphabet_char = ''.join(alphabet_char)
+            self.netD = networks.define_D(
+                                    nclass = opt.n_alphabet+1, 
+                                    channel_size = opt.input_nc,
+                                    hidden_size = opt.hidden_size,
+                                    output_size = opt.n_alphabet+2,
+                                    dropout_p = opt.dropout_p,
+                                    max_length = opt.max_length,
+                                    D_ch = opt.D_ch,
+                                    nWriter = opt.num_writer,
+                                    norm = opt.norm, 
+                                    init_type = opt.init_type, 
+                                    init_gain = opt.init_gain, 
+                                    gpu_ids = self.gpu_ids,
+                                    iam = False)
             
-            self.netD = networks.define_D(len(alphabet_char)+1, opt.input_nc,opt.hidden_size,len(alphabet_char)+2,opt.dropout_p,opt.max_length,opt.D_ch,
-                                            opt.num_writer,opt.norm, opt.init_type, opt.init_gain, self.gpu_ids,iam = False)
-            self.converterATT = strLabelConverterForAttention(alphabet_char)
-            self.converter = AttnLabelConverter(alphabet_radical)
+            self.converterATT = strLabelConverterForAttention()
+            self.converter = AttnLabelConverter()
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)  # define GAN loss.
             # self.criterionunetD =networks.unetDisLoss().to(self.device)
             self.criterionD =networks.DisLoss().to(self.device)
@@ -42,6 +51,7 @@ class CHARACTERModel(BaseModel):
                 lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
+            self.schedulers = [networks.get_scheduler(optimizer, opt) for optimizer in self.optimizers]
                         
 
     def set_input(self, input): 
@@ -91,7 +101,7 @@ class CHARACTERModel(BaseModel):
         
     def backward_D_basic(self, netD, real, fake):
 
-        lambda_loc = self.opt.lambda_loc
+        # lambda_loc = self.opt.lambda_loc
         # Real
         pred_radical_real, loss_D_real_lexicon, out_real, writerID_real, radical_writerID_real =netD(real, self.new_lexicon_A,self.new_lexicon_A_length)       
         # self.loss_unetD_real, self.loss_unetD_middle_real = self.criterionunetD(out_real,bottleneck_out_real,True)
@@ -119,8 +129,9 @@ class CHARACTERModel(BaseModel):
         
     def backward_G(self):
         
-        lambda_loc = self.opt.lambda_loc
-        lambda_content = self.opt.lambda_Lcontent
+        # lambda_loc = self.opt.lambda_loc
+        # lambda_content = self.opt.lambda_Lcontent
+        lambda_content = 1
         
         pred_radical, loss, out, writerID, radical_wrtiterID = self.netD(self.img_print2write, self.new_lexicon_B, self.new_lexicon_B_length)        
         #loss_G
@@ -160,5 +171,11 @@ class CHARACTERModel(BaseModel):
         self.backward_D()      # calculate gradients for D
         self.optimizer_D.step()  # update D's weights
         
+    def get_state_dicts(self):
+        return {
+            'netContentEncoder': self.netContentEncoder.state_dict(),
+            'netStyleEncoder': self.netStyleEncoder.state_dict(),
+            'netdecoder': self.netdecoder.state_dict(),
+            'netD': self.netD.state_dict(),
+        }
         
-

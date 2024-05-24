@@ -18,7 +18,7 @@ from torch.nn.parameter import Parameter
 from torchvision.models.vgg import vgg19
 from torch.autograd import Variable
 
-from . import unet
+import unet
 
 from enum import Enum
 from PIL import Image
@@ -133,8 +133,8 @@ def init_net(net, init_type='normal', init_gain=0.02, gpu_ids=[]):
     """
     if len(gpu_ids) > 0:
         assert(torch.cuda.is_available())
-        net.to(gpu_ids[0])
-        net = torch.nn.DataParallel(net, gpu_ids)  # multi-GPUs
+        net.to(f'cuda:{gpu_ids[0]}')
+        # net = torch.nn.DataParallel(net, gpu_ids)  # multi-GPUs
     init_weights(net, init_type, init_gain=init_gain)
     return net
 
