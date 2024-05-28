@@ -49,7 +49,7 @@ class TrainPhase2Args:
         self.datapath = "/home/jupyter/ai_font/data"
         self.scr = True
         self.num_neg = 4
-        self.experiment_name = "van_phase2"
+        self.experiment_name = "fewshot_letterstrip_phase2"
         self.resolution=96
         self.content_font = '시스템 굴림'
         self.content_encoding_size = 12
@@ -57,9 +57,9 @@ class TrainPhase2Args:
         self.seed=123
         self.phase_2 = True
         self.scr_path="exp0514/scr/scr__440000.pth"
-        self.content_encoder_path="exp0514/phase1/van_phase1__content_encoder_430000.pth"
-        self.style_encoder_path="exp0514/phase1/van_phase1__style_encoder_430000.pth"
-        self.unet_path="exp0514/phase1/van_phase1__unet_430000.pth"
+        self.content_encoder_path="exp0514/phase1/fewshot_letterstrip_phase1__content_encoder_430000.pth"
+        self.style_encoder_path="exp0514/phase1/fewshot_letterstrip_phase1__style_encoder_430000.pth"
+        self.unet_path="exp0514/phase1/fewshot_letterstrip_phase1__unet_430000.pth"
         
         self.temperature=0.07
         self.mode="refinement"
@@ -78,7 +78,7 @@ class TrainPhase2Args:
         self.train_batch_size=8
         self.perceptual_coefficient=0.01
         self.offset_coefficient=0.5
-        self.max_train_steps=50000
+        self.max_train_steps=100000
         self.ckpt_interval=5000
         self.gradient_accumulation_steps=1
         self.log_interval=50

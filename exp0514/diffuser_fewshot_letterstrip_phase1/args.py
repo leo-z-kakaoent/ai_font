@@ -68,7 +68,7 @@ class TrainPhase2Args:
         self.train_batch_size=8
         self.perceptual_coefficient=0.01
         self.offset_coefficient=0.5
-        self.max_train_steps=30000
+        self.max_train_steps=100000
         self.ckpt_interval=5000
         self.gradient_accumulation_steps=1
         self.log_interval=50

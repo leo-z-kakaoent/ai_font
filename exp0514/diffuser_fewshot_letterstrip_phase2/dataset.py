@@ -59,6 +59,7 @@ class FontDataset(Dataset):
         self.fonts = self.font_mapper.index
         
         self.ak = self.get_all_korean() 
+        self.onehot = {k:self.korean2onehot(k) for k in self.ak}     
         
         self.transforms = get_normal_transform(self.resolution)
         self.nonorm_transforms = get_nonorm_transform(self.resolution)
@@ -72,23 +73,34 @@ class FontDataset(Dataset):
         
         style_content_pool = set(contents).intersection(set(self.letter_mapper_ab[target_content]))
         style_content_pool.discard(target_content)
-        style_content = random.choice(list(style_content_pool))
-        style_img_path = f"{self.path}/train/pngs/{font}__{style_content}.png"
+        style_content_pool = list(style_content_pool)
+        
+        style_content0 = style_content_pool.pop(random.randint(0, len(style_content_pool)-1))
+        style_img_path0 = f"{self.path}/train/pngs/{font}__{style_content0}.png"
 
+        style_content1 = style_content_pool.pop(random.randint(0, len(style_content_pool)-1))
+        style_img_path1 = f"{self.path}/train/pngs/{font}__{style_content1}.png"
+        
         target_img_path = f"{self.path}/train/pngs/{font}__{target_content}.png"
         
+        content_encoding = torch.zeros([68, self.ces, self.ces])
+        content_encoding[np.where(self.onehot[target_content])[0],:,:] = 1
+        
         content_image = self.transforms(Image.open(content_img_path).convert('RGB'))
-        style_image = self.transforms(Image.open(style_img_path).convert('RGB'))
+        style_image0 = self.transforms(Image.open(style_img_path0).convert('RGB'))
+        style_image1 = self.transforms(Image.open(style_img_path1).convert('RGB'))
         target_image = Image.open(target_img_path).convert('RGB')
         nonorm_target_image = self.nonorm_transforms(target_image)
         target_image = self.transforms(target_image)
 
         sample = {
             "content_image": content_image,
-            "style_image": style_image,
+            "style_image0": style_image0,
+            "style_image1": style_image1,
             "target_image": target_image,
             "target_image_path": target_img_path,
-            "nonorm_target_image": nonorm_target_image}
+            "nonorm_target_image": nonorm_target_image,
+            "content_encoding": content_encoding}
         
         if self.scr:
             neg_imgs = []
@@ -103,6 +115,16 @@ class FontDataset(Dataset):
 
     def __len__(self):
         return len(self.fonts)
+    
+    def korean2onehot(self, letter):
+        ch1 = (ord(letter) - ord('가'))//588
+        ch2 = ((ord(letter) - ord('가')) - (588*ch1)) // 28
+        ch3 = (ord(letter) - ord('가')) - (588*ch1) - 28*ch2
+        return torch.from_numpy(np.concatenate([
+            np.eye(19)[ch1],
+            np.eye(21)[ch2],
+            np.eye(28)[ch3],
+        ]))
     
     def get_all_korean(self):
 
