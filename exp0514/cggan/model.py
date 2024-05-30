@@ -6,6 +6,7 @@ import torch.nn.functional as F
 
 import networks
 import unet
+from google.cloud import storage
 from base_model import BaseModel
 from str_converter import strLabelConverterForAttention, AttnLabelConverter, lexicontoid
 
@@ -178,4 +179,19 @@ class CHARACTERModel(BaseModel):
             'netdecoder': self.netdecoder.state_dict(),
             'netD': self.netD.state_dict(),
         }
+    
+    def load_model(self):
+        storage_client = storage.Client(self.opt.bucket_name)
+        bucket = storage_client.bucket(self.opt.bucket_name)
         
+        blob = bucket.blob(f"{self.opt.content_encoder_path}")
+        with blob.open("rb") as f:
+            self.netContentEncoder.load_state_dict(torch.load(f))
+
+        blob = bucket.blob(f"{self.opt.style_encoder_path}")
+        with blob.open("rb") as f:
+            self.netStyleEncoder.load_state_dict(torch.load(f))
+        
+        blob = bucket.blob(f"{self.opt.decoder_path}")
+        with blob.open("rb") as f:
+            self.netdecoder.load_state_dict(torch.load(f))

@@ -86,3 +86,13 @@ class TrainOptions(BaseOptions):
         self.dictionaryRoot = None  # Ensure this is set by the user
         self.val_seenstyleRoot = None  # Ensure this is set by the user
         self.val_unseenstyleRoot = None  # Ensure this is set by the user
+
+        
+class SamplingOptions(TrainOptions):
+    
+    def __init__(self):
+        super().__init__()
+        self.bucket_name = "leo_font"
+        self.content_encoder_path = "exp0514/cggan/van_cggan__netContentEncoder__380000.pth.pth"
+        self.style_encoder_path = "exp0514/cggan/van_cggan__netStyleEncoder__380000.pth.pth"
+        self.decoder_path = "exp0514/cggan/van_cggan__netdecoder__380000.pth.pth"
