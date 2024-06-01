@@ -91,21 +91,30 @@ class FontDiffuserModelDPM(ModelMixin, ConfigMixin):
         version,
     ):
         content_images = cond[0]
-        style_images = cond[1]
+        style_images0 = cond[1]
+        style_images1 = cond[2]
+        content_encodings = cond[3]
 
-        style_img_feature, _, style_residual_features = self.style_encoder(style_images)
+        style_img_feature0, _, _ = self.style_encoder(style_images0)
+        style_img_feature1, _, _ = self.style_encoder(style_images1)
+        style_img_feature = torch.stack([style_img_feature0, style_img_feature1]).mean(0)
         
         batch_size, channel, height, width = style_img_feature.shape
         style_hidden_states = style_img_feature.permute(0, 2, 3, 1).reshape(batch_size, height*width, channel)
-        
-        # Get content feature
-        content_img_feture, content_residual_features = self.content_encoder(content_images)
-        content_residual_features.append(content_img_feture)
+    
+        # Get the content feature
+        content_img_feature, content_residual_features = self.content_encoder(content_images)
+        content_residual_features.append(torch.concat([content_img_feature,content_encodings],axis=1))
         # Get the content feature from reference image
-        style_content_feature, style_content_res_features = self.content_encoder(style_images)
-        style_content_res_features.append(style_content_feature)
+        style_content_feature0, style_content_res_features0 = self.content_encoder(style_images0)
+        style_content_feature1, style_content_res_features1 = self.content_encoder(style_images1)
+        style_content_res_features0.append(style_content_feature0)
+        style_content_res_features1.append(style_content_feature1)
+        style_content_res_features = [
+            torch.stack([f0,f1],axis=0).mean(0) for f0, f1 in zip(style_content_res_features0,style_content_res_features0)]
 
-        input_hidden_states = [style_img_feature, content_residual_features, style_hidden_states, style_content_res_features]
+        input_hidden_states = [style_img_feature, content_residual_features, \
+                               style_hidden_states, style_content_res_features]
 
         out = self.unet(
             x_t, 
@@ -455,6 +464,9 @@ def model_wrapper(
                 c_in = []
                 c_in.append(torch.cat([unconditional_condition[0], condition[0]], dim=0))
                 c_in.append(torch.cat([unconditional_condition[1], condition[1]], dim=0))
+                c_in.append(torch.cat([unconditional_condition[2], condition[2]], dim=0))
+                c_in.append(torch.cat([unconditional_condition[3], condition[3]], dim=0))
+                
                 noise_uncond, noise = noise_pred_fn(x_in, t_in, cond=c_in).chunk(2)
                 return noise_uncond + guidance_scale * (noise - noise_uncond)
             elif model_kwargs["version"] == "FG_Sep":
@@ -1488,7 +1500,10 @@ class FontDiffuserDPMPipeline():
     def generate(
         self,
         content_images,
-        style_images,
+        style_images0,
+        style_images1,
+        content_encodings,
+        
         batch_size,
         order,
         num_inference_step,
@@ -1508,13 +1523,20 @@ class FontDiffuserDPMPipeline():
 
         cond = []
         cond.append(content_images)
-        cond.append(style_images)
+        cond.append(style_images0)
+        cond.append(style_images1)
+        cond.append(content_encodings)
 
         uncond = []
         uncond_content_images = torch.ones_like(content_images).to(self.model.device)
-        uncond_style_images = torch.ones_like(style_images).to(self.model.device)
+        uncond_style_images0 = torch.ones_like(style_images0).to(self.model.device)
+        uncond_style_images1 = torch.ones_like(style_images1).to(self.model.device)
+        uncond_content_encodings = torch.ones_like(content_encodings).to(self.model.device)
+        
         uncond.append(uncond_content_images)
-        uncond.append(uncond_style_images)
+        uncond.append(uncond_style_images0)
+        uncond.append(uncond_style_images1)
+        uncond.append(uncond_content_encodings)
 
         # 2.Convert the discrete-time model to the continuous-time
         model_fn = model_wrapper(
