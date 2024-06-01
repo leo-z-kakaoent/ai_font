@@ -96,3 +96,40 @@ class TrainPhase2Args:
         self.adam_epsilon = 1e-08
         self.max_grad_norm = 1.0
 
+class SampleArgs:
+    def __init__(self):
+        
+        self.bucket_name = "leo_font"
+        self.content_encoder_path="exp0514/phase2/van_phase2__content_encoder_30000.pth"
+        self.style_encoder_path="exp0514/phase2/van_phase2__style_encoder_30000.pth"
+        self.unet_path="exp0514/phase2/van_phase2__unet_30000.pth"
+        self.datapath = "/home/jupyter/ai_font/data"
+        self.batchsize = 32
+        self.savefd = "/home/jupyter/ai_font/data/reports/exp0514/van_fontdiffuser"
+        
+        
+        self.device="cuda:0"
+        self.style_image_size = 96
+        self.content_image_size = 96
+        
+        self.resolution = 96
+        self.unet_channels=(64, 128, 256, 512,)
+        self.style_start_channel=64 
+        self.channel_attn=True 
+        self.content_encoder_downsample_size=3 
+        self.content_start_channel=64 
+        self.beta_scheduler="scaled_linear"
+        self.model_type="noise"
+        self.guidance_type="classifier-free"
+        self.guidance_scale=7.5
+        self.seed = 123
+        
+        self.algorithm_type="dpmsolver++"
+        self.num_inference_steps=20
+        self.method="multistep"
+        
+        self.order=2
+        self.t_start=None
+        self.t_end=None
+        self.skip_type="time_uniform"
+        self.correcting_x0_fn=None

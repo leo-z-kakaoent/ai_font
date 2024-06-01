@@ -7,11 +7,10 @@ from PIL import Image
 
 import torch
 import torchvision.transforms as transforms
-from accelerate.utils import set_seed
 
-from font_diffuser.model import FontDiffuserDPMPipeline, FontDiffuserModelDPM
-from font_diffuser.build import build_ddpm_scheduler,build_unet,build_content_encoder,build_style_encoder
-from font_diffuser.utils import (ttf2im,
+from model import FontDiffuserDPMPipeline, FontDiffuserModelDPM
+from build import build_ddpm_scheduler,build_unet,build_content_encoder,build_style_encoder
+from utils import (ttf2im,
                    load_ttf,
                    is_char_in_font,
                    save_args_to_yaml,
