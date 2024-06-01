@@ -104,8 +104,10 @@ class SampleArgs:
         self.style_encoder_path="exp0514/phase2/van_phase2__style_encoder_30000.pth"
         self.unet_path="exp0514/phase2/van_phase2__unet_30000.pth"
         self.datapath = "/home/jupyter/ai_font/data"
-        self.batchsize = 32
+        self.batchsize = 96
         self.savefd = "/home/jupyter/ai_font/data/reports/exp0514/van_fontdiffuser"
+        self.tag = 'van_fontdif'
+        
         
         
         self.device="cuda:0"
