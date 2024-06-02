@@ -13,12 +13,14 @@ import torchvision.transforms as transforms
 
 class SamplingDataset(Dataset):
 
-    def __init__(self, args):
+    def __init__(self, args, sampling_font_index):
         super().__init__()
         self.args = args
         self.path = args.datapath
         self.resolution = args.resolution # default
         self.testmap = pd.read_pickle("/home/jupyter/ai_font/data/test/testmapdf.pickle")
+        self.fonts = np.unique(self.testmap['font'])
+        self.testmap = self.testmap.loc[np.isin(self.testmap['font'].values,self.fonts[sampling_font_index])]
         self.content_font = '시스템 굴림'
         self.transforms = get_normal_transform(self.resolution)
         
