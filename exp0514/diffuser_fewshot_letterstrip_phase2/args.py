@@ -2,7 +2,7 @@ class SampleArgs:
     def __init__(self):
         
         self.bucket_name = "leo_font"
-        self.content_encoder_path="exp0514/phase2/fewshot_letterstrip_phase2__content_encoder_30000.pth"
+        self.content_encoder_path="exp0514/phase2/fewshot_letterstrip_phase2__content_encoder_30I’m 000.pth"
         self.style_encoder_path="exp0514/phase2/fewshot_letterstrip_phase2__style_encoder_30000.pth"
         self.unet_path="exp0514/phase2/fewshot_letterstrip_phase2__unet_30000.pth"
         self.datapath = "/home/jupyter/ai_font/data"
@@ -30,6 +30,46 @@ class SampleArgs:
         
         self.algorithm_type="dpmsolver++"
         self.num_inference_steps=20
+        self.method="multistep"
+        
+        self.order=2
+        self.t_start=None
+        self.t_end=None
+        self.skip_type="time_uniform"
+        self.correcting_x0_fn=None
+        
+class SampleArgsMoreStep:
+    def __init__(self):
+        
+        self.bucket_name = "leo_font"
+        self.content_encoder_path="exp0514/phase2/fewshot_letterstrip_phase2__content_encoder_95000.pth"
+        self.style_encoder_path="exp0514/phase2/fewshot_letterstrip_phase2__style_encoder_95000.pth"
+        self.unet_path="exp0514/phase2/fewshot_letterstrip_phase2__unet_95000.pth"
+        self.datapath = "/home/jupyter/ai_font/data"
+        self.batchsize = 96
+        self.savefd = "/home/jupyter/ai_font/data/reports/exp0514/fewshot_letterstrip_fontdiffuser"
+        self.tag = 'fewshot_letterstrip_fontdif_morestep'
+        
+        self.testmap_path_bucket = "exp0514/testmapdf.pickle"
+        self.testmap_path = "/home/jupyter/ai_font/data/test/testmapdf.pickle"
+        self.device="cuda:0"
+        self.style_image_size = 96
+        self.content_image_size = 96
+        self.content_encoding_size = 12
+        self.resolution = 96
+        self.unet_channels=(64, 128, 256, 512,)
+        self.style_start_channel=64 
+        self.channel_attn=True 
+        self.content_encoder_downsample_size=3 
+        self.content_start_channel=64 
+        self.beta_scheduler="scaled_linear"
+        self.model_type="noise"
+        self.guidance_type="classifier-free"
+        self.guidance_scale=7.5
+        self.seed = 123
+        
+        self.algorithm_type="dpmsolver++"
+        self.num_inference_steps=32
         self.method="multistep"
         
         self.order=2
