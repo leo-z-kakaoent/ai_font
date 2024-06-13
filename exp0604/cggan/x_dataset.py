@@ -51,10 +51,13 @@ class CGGANDataset(Dataset):
         
         self.ak = self.get_all_korean()
         self.transforms = get_normal_transform(self.resolution)
+        self.tags = ["closing","erode","dilate"]
 
     def __getitem__(self, index):
         # B 가 content, A가 style, writerId는 A 거를 가져옴
         A_font = self.fonts[index]
+        A_tag = random.choice(self.tags)
+        B_tag = random.choice(self.tags)
         
         contents = self.font_mapper.loc[A_font]
         B_content = random.choice(contents)
@@ -67,8 +70,8 @@ class CGGANDataset(Dataset):
         styles = [x for x in self.letter2font.loc[B_content] if x != A_font]
         B_font = random.choice(styles)
         
-        A_path = f"{self.path}/train/pngs/{A_font}__{A_content}.png"
-        B_path = f"{self.path}/train/pngs/{B_font}__{B_content}.png"
+        A_path = f"{self.path}/train/{A_font}/{A_font}__{A_tag}__{A_content}.png"
+        B_path = f"{self.path}/train/{B_font}/{B_font}__{B_tag}__{B_content}.png"
         
         writerID = torch.tensor(index)
         

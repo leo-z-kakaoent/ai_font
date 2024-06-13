@@ -42,8 +42,8 @@ class BaseOptions():
         self.batch_size = 32
         self.num_threads = 8
         self.datapath = "/home/jupyter/ai_font/data"
-        self.savepath = "exp0514/cggan"
-        self.experiment_name = "van_cggan"
+        self.savepath = "exp0604/cggan"
+        self.experiment_name = "cggan"
         self.isTrain = True
         
         self.n_alphabet = 11172
