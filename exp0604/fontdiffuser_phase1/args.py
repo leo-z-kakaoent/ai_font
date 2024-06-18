@@ -2,14 +2,13 @@ class TrainPhase1Args:
     def __init__(self):
         # My Configs
         self.bucket_name = "leo_font"
-        self.savepath = "exp0514/phase1"
+        self.savepath = "exp0604/phase1"
         self.datapath = "/home/jupyter/ai_font/data"
         self.scr = False
         self.num_neg = None
-        self.experiment_name = "van_phase1"
+        self.experiment_name = "phase1"
         self.resolution=96
-        self.content_font = '시스템 굴림'
-        self.content_encoding_size = 12
+        self.content_font = '시스템굴림'
         
         # Given
         self.unet_channels=(64, 128, 256, 512,)
@@ -29,7 +28,7 @@ class TrainPhase1Args:
         self.train_batch_size=8
         self.perceptual_coefficient=0.01 
         self.offset_coefficient=0.5 
-        self.max_train_steps=440000 
+        self.max_train_steps=440000*5
         self.ckpt_interval=40000 
         self.gradient_accumulation_steps=1 
         self.log_interval=50 

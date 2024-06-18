@@ -51,29 +51,23 @@ class FontDataset(Dataset):
         self.scr = args.scr
         self.resolution = args.resolution # default
         self.num_neg = args.num_neg
-        self.ces = args.content_encoding_size
-        self.letter_mapper_a = pd.read_pickle(f"{self.path}/pickle/letter_mapper_a.pickle")
-        self.letter_mapper_b = pd.read_pickle(f"{self.path}/pickle/letter_mapper_b.pickle")
         self.font_mapper = pd.read_pickle(f"{self.path}/pickle/font_mapper.pickle")
-        self.letter_mapper_ab = self.letter_mapper_a.similar + self.letter_mapper_b.similar
         self.fonts = self.font_mapper.index
-        
-        self.ak = self.get_all_korean() 
+        self.tags = ['closing','dilate','erode']
         
         self.transforms = get_normal_transform(self.resolution)
         self.nonorm_transforms = get_nonorm_transform(self.resolution)
 
     def __getitem__(self, index):
-        font = self.fonts[index]
-        contents = copy.deepcopy(self.font_mapper.loc[font])
-        
-        target_content = contents.pop(random.randint(0, len(contents)-1))
-        content_img_path = f"{self.path}/train/pngs/{self.args.content_font}__{target_content}.png"
-        
-        style_content = contents.pop(random.randint(0, len(contents)-1))
-        style_img_path = f"{self.path}/train/pngs/{font}__{style_content}.png"
 
-        target_img_path = f"{self.path}/train/pngs/{font}__{target_content}.png"
+        font = self.fonts[index]
+        tag = random.choice(self.tags)
+        
+        content = random.choice(self.font_mapper.loc[font])
+        
+        style_img_path = f"{self.path}/train_assembled/{font}/{font}__{tag}__{content}.png"
+        content_img_path = f"{self.path}/train/{self.args.content_font}/{self.args.content_font}__closing__{content}.png"
+        target_img_path = f"{self.path}/train/{font}/{font}__{tag}__{content}.png"
         
         content_image = self.transforms(Image.open(content_img_path).convert('RGB'))
         style_image = self.transforms(Image.open(style_img_path).convert('RGB'))
@@ -109,41 +103,3 @@ class FontDataset(Dataset):
 
     def __len__(self):
         return len(self.fonts)
-    
-    def get_all_korean(self):
-
-        def nextKorLetterFrom(letter):
-            lastLetterInt = 15572643
-            if not letter:
-                return '가'
-            a = letter
-            b = a.encode('utf8')
-            c = int(b.hex(), 16)
-
-            if c == lastLetterInt:
-                return False
-
-            d = hex(c + 1)
-            e = bytearray.fromhex(d[2:])
-
-            flag = True
-            while flag:
-                try:
-                    r = e.decode('utf-8')
-                    flag = False
-                except UnicodeDecodeError:
-                    c = c+1
-                    d = hex(c)
-                    e = bytearray.fromhex(d[2:])
-            return e.decode()
-
-        returns = []
-        flag = True
-        k = ''
-        while flag:
-            k = nextKorLetterFrom(k)
-            if k is False:
-                flag = False
-            else:
-                returns.append(k)
-        return returns
