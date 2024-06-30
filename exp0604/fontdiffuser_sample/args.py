@@ -100,13 +100,13 @@ class SampleArgs:
     def __init__(self):
         
         self.bucket_name = "leo_font"
-        self.content_encoder_path="exp0514/phase2/van_phase2__content_encoder_30000.pth"
-        self.style_encoder_path="exp0514/phase2/van_phase2__style_encoder_30000.pth"
-        self.unet_path="exp0514/phase2/van_phase2__unet_30000.pth"
+        self.content_encoder_path="exp0604/phase1/phase1__content_encoder_610000.pth"
+        self.style_encoder_path="exp0604/phase1/phase1__style_encoder_610000.pth"
+        self.unet_path="exp0604/phase1/phase1__unet_610000.pth"
         self.datapath = "/home/jupyter/ai_font/data"
         self.batchsize = 32
-        self.savefd = "/home/jupyter/ai_font/data/reports/exp0514/van_fontdiffuser"
-        self.tag = 'van_fontdif'
+        self.savefd = "/home/jupyter/ai_font/data/reports/fontdiffuser/phase1"
+        self.tag = 'fontdiffuser_phase1'
         
         
         
