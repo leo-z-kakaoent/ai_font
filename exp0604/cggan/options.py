@@ -43,12 +43,12 @@ class BaseOptions():
         self.num_threads = 8
         self.datapath = "/home/jupyter/ai_font/data"
         self.savepath = "exp0604/cggan"
-        self.experiment_name = "cggan"
+        self.experiment_name = "cggan_INfix"
         self.isTrain = True
         
         self.n_alphabet = 11172
         self.bucket_name = "leo_font"        
-        
+
 
 class TrainOptions(BaseOptions):
 
@@ -87,14 +87,14 @@ class TrainOptions(BaseOptions):
         self.val_seenstyleRoot = None  # Ensure this is set by the user
         self.val_unseenstyleRoot = None  # Ensure this is set by the user
 
-        
+
 class SamplingOptions(TrainOptions):
     
-    def __init__(self):
+    def __init__(self, itern="0"):
         super().__init__()
-        self.tag = "cggan_full"
-        self.savefd = "/home/jupyter/ai_font/data/reports/exp0514/cggan"
+        self.tag = "cggan"
+        self.savefd = f"/home/jupyter/ai_font/data/reports/exp0604/cggan/vanil/i{itern}"
         self.bucket_name = "leo_font"
-        self.content_encoder_path = "exp0514/cggan/van_cggan__netContentEncoder__440000.pth.pth"
-        self.style_encoder_path = "exp0514/cggan/van_cggan__netStyleEncoder__440000.pth.pth"
-        self.decoder_path = "exp0514/cggan/van_cggan__netdecoder__440000.pth.pth"
+        self.content_encoder_path = f"exp0604/cggan/cggan__netContentEncoder__{itern}.pth.pth"
+        self.style_encoder_path = f"exp0604/cggan/cggan__netStyleEncoder__{itern}.pth.pth"
+        self.decoder_path = f"exp0604/cggan/cggan__netdecoder__{itern}.pth.pth"
