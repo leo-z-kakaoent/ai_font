@@ -18,8 +18,8 @@ class SamplingDataset(Dataset):
         self.args = args
         self.path = args.datapath
         self.resolution = args.resolution # default
-        self.testmap = pd.read_pickle("/home/jupyter/ai_font/data/test/testmapdf.pickle")
-        self.content_font = "나눔손글씨 가람연꽃"
+        self.testmap = pd.read_pickle("/home/jupyter/ai_font/data/pickle/testmap_플레이브밤비.pickle")
+        self.content_font = "나눔손글씨가람연꽃"
         self.transforms = get_normal_transform(self.resolution)
         
         
@@ -35,8 +35,8 @@ class SamplingDataset(Dataset):
         B_font = self.content_font
         B_content = arow.letter
         
-        A_path = f"{self.path}/test/pngs/{A_font}__{A_content}.png"
-        B_path = f"{self.path}/train/pngs/{B_font}__{B_content}.png"
+        A_path = f"{self.path}/test/pngs/{A_content}.png"
+        B_path = f"{self.path}/train/{B_font}/{B_font}__{B_content}.png"
         
         A_label = A_content
         B_label = B_content

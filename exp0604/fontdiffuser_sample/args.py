@@ -97,18 +97,18 @@ class TrainPhase2Args:
         self.max_grad_norm = 1.0
 
 class SampleArgs:
-    def __init__(self):
+    def __init__(self, itern):
         
         self.bucket_name = "leo_font"
-        self.content_encoder_path="exp0604/phase1/phase1__content_encoder_1930000.pth"
-        self.style_encoder_path="exp0604/phase1/phase1__style_encoder_1930000.pth"
-        self.unet_path="exp0604/phase1/phase1__unet_1930000.pth"
+        self.content_encoder_path=f"exp0604/phase2/phase_2__1000000__content_encoder_{itern}.pth"
+        self.style_encoder_path=f"exp0604/phase2/phase_2__1000000__style_encoder_{itern}.pth"
+        self.unet_path=f"exp0604/phase2/phase_2__1000000__unet_{itern}.pth"
         self.datapath = "/home/jupyter/ai_font/data"
         self.batchsize = 32
-        self.savefd = "/home/jupyter/ai_font/data/reports/fontdiffuser/phase1"
-        self.tag = 'fontdiffuser_phase1'
+        self.savefd = f"/home/jupyter/ai_font/data/reports/fontdiffuser/phase2/i{itern}"
+        self.tag = 'fontdiffuser_phase2'
         
-        
+        # leo_font/exp0604/phase2/phase_2__1000000__content_encoder_0.pth
         
         self.device="cuda:0"
         self.style_image_size = 96

@@ -22,7 +22,7 @@ class SamplingDataset(Dataset):
         self.content_font = '시스템굴림'
         self.target_font = target_font
         self.transforms = get_normal_transform(self.resolution)
-        self.target_letters = [k for k in self.ak if os.path.exists(f"{self.path}/test_assembled/{self.target_font}/{self.target_font}__closing__{k}.png")]
+        self.target_letters = [k for k in self.ak if os.path.exists(f"{self.path}/test_assembled/{self.target_font}/{self.target_font}__closing__{k}.png") & os.path.exists(f"{self.path}/test/processed/{self.target_font}/{self.target_font}__closing__{k}.png")]
         
     def __len__(self):
         return len(self.target_letters)
