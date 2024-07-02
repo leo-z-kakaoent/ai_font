@@ -2,14 +2,13 @@ class TrainPhase1Args:
     def __init__(self):
         # My Configs
         self.bucket_name = "leo_font"
-        self.savepath = "exp0514/phase1"
+        self.savepath = "exp0604/phase1"
         self.datapath = "/home/jupyter/ai_font/data"
         self.scr = False
         self.num_neg = None
-        self.experiment_name = "van_phase1"
+        self.experiment_name = "phase1"
         self.resolution=96
-        self.content_font = '시스템 굴림'
-        self.content_encoding_size = 12
+        self.content_font = '시스템굴림'
         
         # Given
         self.unet_channels=(64, 128, 256, 512,)
@@ -29,7 +28,7 @@ class TrainPhase1Args:
         self.train_batch_size=8
         self.perceptual_coefficient=0.01 
         self.offset_coefficient=0.5 
-        self.max_train_steps=440000 
+        self.max_train_steps=440000*5
         self.ckpt_interval=40000 
         self.gradient_accumulation_steps=1 
         self.log_interval=50 
@@ -43,23 +42,13 @@ class TrainPhase1Args:
 class TrainPhase2Args:
     def __init__(self):
         
-        # My Configs
-        self.bucket_name = "leo_font"
-        self.savepath = "exp0514/phase2"
-        self.datapath = "/home/jupyter/ai_font/data"
-        self.scr = True
-        self.num_neg = 4
-        self.experiment_name = "van_phase2"
-        self.resolution=96
-        self.content_font = '시스템 굴림'
-        self.content_encoding_size = 12
-        
         self.seed=123
+        self.experience_name="FontDiffuser_training_phase_2"
         self.phase_2 = True
-        self.scr_path="exp0514/scr/scr__440000.pth"
-        self.content_encoder_path="exp0514/phase1/van_phase1__content_encoder_430000.pth"
-        self.style_encoder_path="exp0514/phase1/van_phase1__style_encoder_430000.pth"
-        self.unet_path="exp0514/phase1/van_phase1__unet_430000.pth"
+        self.scr_path="data/m40216/scr_99.pth"
+        self.content_encoder_path="data/m40216/content_encoder_430000.pth"
+        self.style_encoder_path="data/m40216/style_encoder_430000.pth"
+        self.unet_path="data/m40216/unet_430000.pth"
         
         self.temperature=0.07
         self.mode="refinement"
@@ -78,7 +67,7 @@ class TrainPhase2Args:
         self.train_batch_size=8
         self.perceptual_coefficient=0.01
         self.offset_coefficient=0.5
-        self.max_train_steps=50000
+        self.max_train_steps=30000
         self.ckpt_interval=5000
         self.gradient_accumulation_steps=1
         self.log_interval=50
@@ -90,48 +79,10 @@ class TrainPhase2Args:
         
         self.unet_channels=(64, 128, 256, 512,)
         self.beta_scheduler="scaled_linear"
+        self.path = "data/r40202/"
         self.adam_beta1 = 0.9
         self.adam_beta2 = 0.999
         self.adam_weight_decay = 1e-2
         self.adam_epsilon = 1e-08
         self.max_grad_norm = 1.0
 
-class SampleArgs:
-    def __init__(self):
-        
-        self.bucket_name = "leo_font"
-        self.content_encoder_path="exp0604/phase1/phase1__content_encoder_1930000.pth"
-        self.style_encoder_path="exp0604/phase1/phase1__style_encoder_1930000.pth"
-        self.unet_path="exp0604/phase1/phase1__unet_1930000.pth"
-        self.datapath = "/home/jupyter/ai_font/data"
-        self.batchsize = 32
-        self.savefd = "/home/jupyter/ai_font/data/reports/fontdiffuser/phase1"
-        self.tag = 'fontdiffuser_phase1'
-        
-        
-        
-        self.device="cuda:0"
-        self.style_image_size = 96
-        self.content_image_size = 96
-        
-        self.resolution = 96
-        self.unet_channels=(64, 128, 256, 512,)
-        self.style_start_channel=64 
-        self.channel_attn=True 
-        self.content_encoder_downsample_size=3 
-        self.content_start_channel=64 
-        self.beta_scheduler="scaled_linear"
-        self.model_type="noise"
-        self.guidance_type="classifier-free"
-        self.guidance_scale=7.5
-        self.seed = 123
-        
-        self.algorithm_type="dpmsolver++"
-        self.num_inference_steps=20
-        self.method="multistep"
-        
-        self.order=2
-        self.t_start=None
-        self.t_end=None
-        self.skip_type="time_uniform"
-        self.correcting_x0_fn=None
