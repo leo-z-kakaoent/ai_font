@@ -23,6 +23,12 @@ def save_model(args, bucket, state_dict, model_name):
     blob = bucket.blob(f"{args.savepath}/{args.experiment_name}__{model_name}.pth")
     with blob.open("wb", ignore_flush=True) as f:
         torch.save(state_dict, f)
+
+def load_model(bucket, model_name):
+    blob = bucket.blob(f"{model_name}")
+    with blob.open("rb") as f:
+        return torch.load(f)
+    
         
 
 def save_single_image(save_dir, image):

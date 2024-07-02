@@ -84,19 +84,19 @@ class FontDataset(Dataset):
         
         if self.scr:
             # Get neg image from the different style of the same content
-            neg_names = [f for f in self.target_images if (style not in f)&("__"+content in f)]
-            choose_neg_names = []
-            for i in range(self.num_neg):
-                choose_neg_names.append(random.choice(neg_names))
-
-            # Load neg_images
-            for i, neg_name in enumerate(choose_neg_names):
-                neg_image = Image.open(neg_name).convert("RGB")
-                neg_image = self.transforms(neg_image)
-                if i == 0:
-                    neg_images = neg_image[None, :, :, :]
-                else:
-                    neg_images = torch.cat([neg_images, neg_image[None, :, :, :]], dim=0)
+            i = 0
+            while i < self.num_neg:
+                f = random.choice(self.fonts)
+                t = random.choice(self.tags)
+                neg_path = f"{self.path}/train/{f}/{f}__{t}__{content}.png"
+                if (f != font) & (t != tag) & os.path.exists(neg_path):
+                    neg_image = Image.open(neg_path).convert("RGB")
+                    neg_image = self.transforms(neg_image)
+                    if i == 0:
+                        neg_images = neg_image[None, :, :, :]
+                    else:
+                        neg_images = torch.cat([neg_images, neg_image[None, :, :, :]], dim=0)
+                    i += 1
             sample["neg_images"] = neg_images
 
         return sample

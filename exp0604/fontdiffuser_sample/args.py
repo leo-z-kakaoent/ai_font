@@ -45,11 +45,11 @@ class TrainPhase2Args:
         
         # My Configs
         self.bucket_name = "leo_font"
-        self.savepath = "exp0514/phase2"
+        self.savepath = "exp0604/phase2"
         self.datapath = "/home/jupyter/ai_font/data"
         self.scr = True
         self.num_neg = 4
-        self.experiment_name = "van_phase2"
+        self.experiment_name = "phase2"
         self.resolution=96
         self.content_font = '시스템 굴림'
         self.content_encoding_size = 12
@@ -57,9 +57,9 @@ class TrainPhase2Args:
         self.seed=123
         self.phase_2 = True
         self.scr_path="exp0514/scr/scr__440000.pth"
-        self.content_encoder_path="exp0514/phase1/van_phase1__content_encoder_430000.pth"
-        self.style_encoder_path="exp0514/phase1/van_phase1__style_encoder_430000.pth"
-        self.unet_path="exp0514/phase1/van_phase1__unet_430000.pth"
+        self.content_encoder_path="exp0514/phase1/phase1__content_encoder_1000000.pth"
+        self.style_encoder_path="exp0514/phase1/phase1__style_encoder_1000000.pth"
+        self.unet_path="exp0514/phase1/phase1__unet_1000000.pth"
         
         self.temperature=0.07
         self.mode="refinement"

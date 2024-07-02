@@ -43,13 +43,17 @@ class TrainPhase2Args:
     def __init__(self):
         
         self.seed=123
-        self.experience_name="FontDiffuser_training_phase_2"
+        self.bucket_name = "leo_font"
+        self.experiment_name="phase_2__1000000"
+        self.savepath = "exp0604/phase2"
+        self.datapath = "/home/jupyter/ai_font/data"
         self.phase_2 = True
-        self.scr_path="data/m40216/scr_99.pth"
-        self.content_encoder_path="data/m40216/content_encoder_430000.pth"
-        self.style_encoder_path="data/m40216/style_encoder_430000.pth"
-        self.unet_path="data/m40216/unet_430000.pth"
-        
+        self.scr = True
+        self.scr_path="exp0514/scr/scr__440000.pth"
+        self.content_encoder_path="exp0604/phase1/phase1__content_encoder_1000000.pth"
+        self.style_encoder_path="exp0604/phase1/phase1__style_encoder_1000000.pth"
+        self.unet_path="exp0604/phase1/phase1__unet_1000000.pth"
+        self.content_font = '시스템굴림'
         self.temperature=0.07
         self.mode="refinement"
         self.nce_layers='0,1,2,3'
@@ -79,7 +83,6 @@ class TrainPhase2Args:
         
         self.unet_channels=(64, 128, 256, 512,)
         self.beta_scheduler="scaled_linear"
-        self.path = "data/r40202/"
         self.adam_beta1 = 0.9
         self.adam_beta2 = 0.999
         self.adam_weight_decay = 1e-2
