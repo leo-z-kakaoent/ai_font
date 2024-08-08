@@ -1,0 +1,105 @@
+import os
+import random
+import copy
+from PIL import Image
+
+import numpy as np
+import pandas as pd
+import torch
+from tqdm import tqdm
+from torch.utils.data import Dataset, DataLoader
+import torchvision.transforms as transforms
+
+
+class CollateFN(object):
+    def __init__(self):
+        pass
+
+    def __call__(self, batch):
+        batched_data = {}
+
+        for k in batch[0].keys():
+            batch_key_data = [ele[k] for ele in batch]
+            if isinstance(batch_key_data[0], torch.Tensor):
+                batch_key_data = torch.stack(batch_key_data)
+            batched_data[k] = batch_key_data
+        
+        return batched_data
+
+
+def get_normal_transform(resolution):
+    normal_transform = transforms.Compose([
+            transforms.Resize((resolution, resolution)),
+            transforms.ToTensor(),
+            transforms.Normalize([0.5], [0.5])
+        ])
+    return normal_transform
+
+def get_nonorm_transform(resolution):
+    nonorm_transform =  transforms.Compose([
+        transforms.Resize((resolution, resolution)),
+        transforms.ToTensor(),
+    ])
+    return nonorm_transform
+
+
+class FontDataset(Dataset):
+    def __init__(self, args):
+        super().__init__()
+        self.args = args
+        self.path = args.datapath
+        self.scr = args.scr
+        self.resolution = args.resolution # default
+        self.num_neg = args.num_neg
+        self.font_mapper = pd.read_pickle(f"{self.path}/pickle/font_mapper.pickle")
+        self.fonts = self.font_mapper.index
+        self.tags = ['closing','dilate','erode']
+        
+        self.transforms = get_normal_transform(self.resolution)
+        self.nonorm_transforms = get_nonorm_transform(self.resolution)
+
+    def __getitem__(self, index):
+
+        font = self.fonts[index]
+        tag = random.choice(self.tags)
+        
+        content = random.choice(self.font_mapper.loc[font])
+        
+        style_img_path = f"{self.path}/train_assembled/{font}/{font}__{tag}__{content}.png"
+        content_img_path = f"{self.path}/train/{self.args.content_font}/{self.args.content_font}__closing__{content}.png"
+        target_img_path = f"{self.path}/train/{font}/{font}__{tag}__{content}.png"
+        
+        content_image = self.transforms(Image.open(content_img_path).convert('RGB'))
+        style_image = self.transforms(Image.open(style_img_path).convert('RGB'))
+        target_image = Image.open(target_img_path).convert('RGB')
+        nonorm_target_image = self.nonorm_transforms(target_image)
+        target_image = self.transforms(target_image)
+
+        sample = {
+            "content_image": content_image,
+            "style_image": style_image,
+            "target_image": target_image,
+            "target_image_path": target_img_path,
+            "nonorm_target_image": nonorm_target_image}
+        
+        if self.scr:
+            # Get neg image from the different style of the same content
+            i = 0
+            while i < self.num_neg:
+                f = random.choice(self.fonts)
+                t = random.choice(self.tags)
+                neg_path = f"{self.path}/train/{f}/{f}__{t}__{content}.png"
+                if (f != font) & (t != tag) & os.path.exists(neg_path):
+                    neg_image = Image.open(neg_path).convert("RGB")
+                    neg_image = self.transforms(neg_image)
+                    if i == 0:
+                        neg_images = neg_image[None, :, :, :]
+                    else:
+                        neg_images = torch.cat([neg_images, neg_image[None, :, :, :]], dim=0)
+                    i += 1
+            sample["neg_images"] = neg_images
+
+        return sample
+
+    def __len__(self):
+        return len(self.fonts)

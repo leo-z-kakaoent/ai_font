@@ -90,11 +90,11 @@ class TrainOptions(BaseOptions):
         
 class SamplingOptions(TrainOptions):
     
-    def __init__(self):
+    def __init__(self, itern="0"):
         super().__init__()
-        self.tag = "cggan_full"
-        self.savefd = "/home/jupyter/ai_font/data/reports/exp0514/cggan"
+        self.tag = "cggan"
+        self.savefd = f"/home/jupyter/ai_font/data/reports/exp0604/cggan/i{itern}"
         self.bucket_name = "leo_font"
-        self.content_encoder_path = "exp0514/cggan/van_cggan__netContentEncoder__440000.pth.pth"
-        self.style_encoder_path = "exp0514/cggan/van_cggan__netStyleEncoder__440000.pth.pth"
-        self.decoder_path = "exp0514/cggan/van_cggan__netdecoder__440000.pth.pth"
+        self.content_encoder_path = f"exp0604/cggan/cggan_INfix__netContentEncoder__{itern}.pth.pth"
+        self.style_encoder_path = f"exp0604/cggan/cggan_INfix__netStyleEncoder__{itern}.pth.pth"
+        self.decoder_path = f"exp0604/cggan/cggan_INfix__netdecoder__{itern}.pth.pth"

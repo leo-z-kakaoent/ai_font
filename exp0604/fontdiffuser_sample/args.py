@@ -45,11 +45,11 @@ class TrainPhase2Args:
         
         # My Configs
         self.bucket_name = "leo_font"
-        self.savepath = "exp0514/phase2"
+        self.savepath = "exp0604/phase2"
         self.datapath = "/home/jupyter/ai_font/data"
         self.scr = True
         self.num_neg = 4
-        self.experiment_name = "van_phase2"
+        self.experiment_name = "phase2"
         self.resolution=96
         self.content_font = '시스템 굴림'
         self.content_encoding_size = 12
@@ -57,9 +57,9 @@ class TrainPhase2Args:
         self.seed=123
         self.phase_2 = True
         self.scr_path="exp0514/scr/scr__440000.pth"
-        self.content_encoder_path="exp0514/phase1/van_phase1__content_encoder_430000.pth"
-        self.style_encoder_path="exp0514/phase1/van_phase1__style_encoder_430000.pth"
-        self.unet_path="exp0514/phase1/van_phase1__unet_430000.pth"
+        self.content_encoder_path="exp0514/phase1/phase1__content_encoder_1000000.pth"
+        self.style_encoder_path="exp0514/phase1/phase1__style_encoder_1000000.pth"
+        self.unet_path="exp0514/phase1/phase1__unet_1000000.pth"
         
         self.temperature=0.07
         self.mode="refinement"
@@ -97,18 +97,18 @@ class TrainPhase2Args:
         self.max_grad_norm = 1.0
 
 class SampleArgs:
-    def __init__(self):
+    def __init__(self, itern):
         
         self.bucket_name = "leo_font"
-        self.content_encoder_path="exp0604/phase1/phase1__content_encoder_610000.pth"
-        self.style_encoder_path="exp0604/phase1/phase1__style_encoder_610000.pth"
-        self.unet_path="exp0604/phase1/phase1__unet_610000.pth"
+        self.content_encoder_path=f"exp0604/phase2/phase_2__1000000__content_encoder_{itern}.pth"
+        self.style_encoder_path=f"exp0604/phase2/phase_2__1000000__style_encoder_{itern}.pth"
+        self.unet_path=f"exp0604/phase2/phase_2__1000000__unet_{itern}.pth"
         self.datapath = "/home/jupyter/ai_font/data"
         self.batchsize = 32
-        self.savefd = "/home/jupyter/ai_font/data/reports/fontdiffuser/phase1"
-        self.tag = 'fontdiffuser_phase1'
+        self.savefd = f"/home/jupyter/ai_font/data/reports/fontdiffuser/phase2/i{itern}"
+        self.tag = 'fontdiffuser_phase2'
         
-        
+        # leo_font/exp0604/phase2/phase_2__1000000__content_encoder_0.pth
         
         self.device="cuda:0"
         self.style_image_size = 96
