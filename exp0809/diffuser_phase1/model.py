@@ -68,17 +68,11 @@ class FontDiffuserModelDPM(ModelMixin, ConfigMixin):
         unet, 
         style_encoder,
         content_encoder,
-        # mask_image,
-        # inpaint_image,
     ):
         super().__init__()
         self.unet = unet
         self.style_encoder = style_encoder
         self.content_encoder = content_encoder
-        # self.inpaint_image = inpaint_image
-    
-        self.x_t_list = []
-        self.noise_list = []
     
     def forward(
         self, 
@@ -91,14 +85,6 @@ class FontDiffuserModelDPM(ModelMixin, ConfigMixin):
         content_images = cond[0]
         style_images = cond[1]
 
-        # x_t = x_t*self.mask_image + (1-self.mask_image) * self.inpaint_image
-        # x_t[1] = x_t[1]*masking_tensor[0] + (1-masking_tensor[0]) * mask_images[0]
-        
-        # print(x_t.shape)
-        # print(timesteps)
-        
-        self.x_t_list.append(x_t)
-        
         style_img_feature, _, style_residual_features = self.style_encoder(style_images)
         
         batch_size, channel, height, width = style_img_feature.shape
@@ -120,7 +106,7 @@ class FontDiffuserModelDPM(ModelMixin, ConfigMixin):
             content_encoder_downsample_size=content_encoder_downsample_size,
         )
         noise_pred = out[0]
-        self.noise_list.append(noise_pred)
+        
         return noise_pred
 
 import torch
@@ -1495,10 +1481,6 @@ class FontDiffuserDPMPipeline():
         self,
         content_images,
         style_images,
-        
-        mask_images,
-        inpaint_images,
-        
         batch_size,
         order,
         num_inference_step,
@@ -1556,10 +1538,7 @@ class FontDiffuserDPMPipeline():
             (batch_size, 3, 96, 96),
             generator=generator,
         )
-
         x_T = x_T.to(self.model.device)
-        for mask_image, inpaint_image in zip(mask_images, inpaint_images):
-            x_T = x_T*(mask_image) + (1-mask_image)*inpaint_image
 
         x_sample = dpm_solver.sample(
             x=x_T,
@@ -1569,8 +1548,6 @@ class FontDiffuserDPMPipeline():
             method=method,
         )
 
-        for mask_image, inpaint_image in zip(mask_images, inpaint_images):
-            x_sample = x_sample*(mask_image) + (1-mask_image)*inpaint_image
         x_sample = (x_sample / 2 + 0.5).clamp(0, 1)
         x_sample = x_sample.cpu().permute(0, 2, 3, 1).numpy()
     

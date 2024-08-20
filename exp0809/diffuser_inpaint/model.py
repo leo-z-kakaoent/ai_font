@@ -85,6 +85,7 @@ class FontDiffuserModelDPM(ModelMixin, ConfigMixin):
         x_t, 
         timesteps, 
         cond,
+        mask_images,
         content_encoder_downsample_size,
         version,
     ):
@@ -120,6 +121,9 @@ class FontDiffuserModelDPM(ModelMixin, ConfigMixin):
             content_encoder_downsample_size=content_encoder_downsample_size,
         )
         noise_pred = out[0]
+        
+        for mask_image in mask_images:
+            noise_pred = noise_pred*mask_image + (1-mask_image)*4.5
         self.noise_list.append(noise_pred)
         return noise_pred
 
@@ -303,6 +307,7 @@ class NoiseScheduleVP:
 def model_wrapper(
     model,
     noise_schedule,
+    mask_images,
     model_type="noise",
     model_kwargs={},
     guidance_type="uncond",
@@ -412,12 +417,12 @@ def model_wrapper(
         else:
             return t_continuous
 
-    def noise_pred_fn(x, t_continuous, cond=None):
+    def noise_pred_fn(x, t_continuous, mask_images, cond=None):
         t_input = get_model_input_time(t_continuous)
         if cond is None:
             output = model(x, t_input, **model_kwargs)
         else:
-            output = model(x, t_input, cond, **model_kwargs)
+            output = model(x, t_input, cond, mask_images, **model_kwargs)
         if model_type == "noise":
             return output
         elif model_type == "x_start":
@@ -439,7 +444,7 @@ def model_wrapper(
             log_prob = classifier_fn(x_in, t_input, condition, **classifier_kwargs)
             return torch.autograd.grad(log_prob.sum(), x_in)[0]
 
-    def model_fn(x, t_continuous):
+    def model_fn(x, t_continuous, mask_images):
         """
         The noise predicition model function that is used for DPM-Solver.
         """
@@ -450,7 +455,7 @@ def model_wrapper(
             t_input = get_model_input_time(t_continuous)
             cond_grad = cond_grad_fn(x, t_input)
             sigma_t = noise_schedule.marginal_std(t_continuous)
-            noise = noise_pred_fn(x, t_continuous)
+            noise = noise_pred_fn(x, t_continuous, mask_images)
             return noise - guidance_scale * sigma_t * cond_grad
         elif guidance_type == "classifier-free":
             if guidance_scale == 1. or unconditional_condition is None:
@@ -461,7 +466,7 @@ def model_wrapper(
                 c_in = []
                 c_in.append(torch.cat([unconditional_condition[0], condition[0]], dim=0))
                 c_in.append(torch.cat([unconditional_condition[1], condition[1]], dim=0))
-                noise_uncond, noise = noise_pred_fn(x_in, t_in, cond=c_in).chunk(2)
+                noise_uncond, noise = noise_pred_fn(x_in, t_in, cond=c_in, mask_images=mask_images).chunk(2)
                 return noise_uncond + guidance_scale * (noise - noise_uncond)
             elif model_kwargs["version"] == "FG_Sep":
                 x_in = torch.cat([x] * 3)
@@ -478,7 +483,7 @@ def model_wrapper(
                 x_in = torch.cat([x] * 2)
                 t_in = torch.cat([t_continuous] * 2)
                 c_in = torch.cat([unconditional_condition, condition])
-                noise_uncond, noise = noise_pred_fn(x_in, t_in, cond=c_in).chunk(2)
+                noise_uncond, noise = noise_pred_fn(x_in, t_in, mask_images, cond=c_in).chunk(2)
                 return noise_uncond + guidance_scale * (noise - noise_uncond)
 
     assert model_type in ["noise", "x_start", "v"]
@@ -491,6 +496,7 @@ class DPM_Solver:
         self,
         model_fn,
         noise_schedule,
+        mask_images,
         algorithm_type="dpmsolver++",
         correcting_x0_fn=None,
         correcting_xt_fn=None,
@@ -553,7 +559,7 @@ class DPM_Solver:
             Burcu Karagol Ayan, S Sara Mahdavi, Rapha Gontijo Lopes, et al. Photorealistic text-to-image diffusion models
             with deep language understanding. arXiv preprint arXiv:2205.11487, 2022b.
         """
-        self.model = lambda x, t: model_fn(x, t.expand((x.shape[0])))
+        self.model = lambda x, t: model_fn(x, t.expand((x.shape[0])), mask_images)
         self.noise_schedule = noise_schedule
         assert algorithm_type in ["dpmsolver", "dpmsolver++"]
         self.algorithm_type = algorithm_type
@@ -1530,6 +1536,7 @@ class FontDiffuserDPMPipeline():
         model_fn = model_wrapper(
             model=self.model,
             noise_schedule=self.noise_schedule,
+            mask_images=mask_images,
             model_type=self.model_type,
             model_kwargs=model_kwargs,
             guidance_type=self.guidance_type,
@@ -1544,6 +1551,7 @@ class FontDiffuserDPMPipeline():
         dpm_solver = DPM_Solver(
             model_fn=model_fn,
             noise_schedule=self.noise_schedule,
+            mask_images=mask_images,
             algorithm_type=algorithm_type,
             correcting_x0_fn=correcting_x0_fn
         )
