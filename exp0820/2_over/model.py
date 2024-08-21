@@ -1484,6 +1484,7 @@ class FontDiffuserDPMPipeline():
         
         mask_images,
         inpaint_images,
+        unmask_images,
         
         batch_size,
         order,
@@ -1543,7 +1544,7 @@ class FontDiffuserDPMPipeline():
             generator=generator,
         )
         x_T = x_T.to(self.model.device)
-        x_T = x_T*(mask_images) + (1-mask_image)*inpaint_images
+        x_T = x_T*(mask_images) + (1-mask_images)*inpaint_images
 
         x_sample = dpm_solver.sample(
             x=x_T,
@@ -1552,6 +1553,8 @@ class FontDiffuserDPMPipeline():
             skip_type=skip_type,
             method=method,
         )
+        x_sample = x_sample*(1-unmask_images) + (1-mask_images)*inpaint_images
+        
 
         x_sample = (x_sample / 2 + 0.5).clamp(0, 1)
         x_sample = x_sample.cpu().permute(0, 2, 3, 1).numpy()
