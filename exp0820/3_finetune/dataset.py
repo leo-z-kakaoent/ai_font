@@ -86,13 +86,15 @@ def get_font_mapper(path, tag):
     ak = get_all_korean()
     fonts = os.listdir(f"{path}/train_whole")
     font_mapper = defaultdict(list)
-    for font in fonts:
+    pbar = tqdm(fonts)
+    for font in pbar:
         for letter in ak:
             target_exists = os.path.exists(f"{path}/train_whole/{font}/{font}__{tag}__{letter}.png")
             style_exists = os.path.exists(f"{path}/train_assembled/{font}/{font}__{tag}__{letter}.png")
             if target_exists & style_exists:
                 font_mapper[font].append(letter)
-
+        pbar.set_postfix(font=font)
+    return font_mapper
 
 
 class FontDataset(Dataset):
@@ -104,19 +106,21 @@ class FontDataset(Dataset):
         self.resolution = args.resolution # default
         self.num_neg = args.num_neg
         self.tag = "closing"
+        self.font_mapper = get_font_mapper(self.path, self.tag)
+        self.fonts = list(self.font_mapper.keys())
         self.transforms = get_normal_transform(self.resolution)
         self.nonorm_transforms = get_nonorm_transform(self.resolution)
 
     def __getitem__(self, index):
 
-        font = self.fonts[index]
+        font = self.fonts[index] if random.random() > (1/16) else "플레이브밤비"
         tag = self.tag
         
-        content = random.choice(self.font_mapper.loc[font])
+        content = random.choice(self.font_mapper[font])
         
         style_img_path = f"{self.path}/train_assembled/{font}/{font}__{tag}__{content}.png"
-        content_img_path = f"{self.path}/train/{self.args.content_font}/{self.args.content_font}__closing__{content}.png"
-        target_img_path = f"{self.path}/train/{font}/{font}__{tag}__{content}.png"
+        content_img_path = f"{self.path}/train_whole/{self.args.content_font}/{self.args.content_font}__closing__{content}.png"
+        target_img_path = f"{self.path}/train_whole/{font}/{font}__{tag}__{content}.png"
         
         content_image = self.transforms(Image.open(content_img_path).convert('RGB'))
         style_image = self.transforms(Image.open(style_img_path).convert('RGB'))
@@ -137,8 +141,8 @@ class FontDataset(Dataset):
             while i < self.num_neg:
                 f = random.choice(self.fonts)
                 t = self.tag
-                neg_path = f"{self.path}/train/{f}/{f}__{t}__{content}.png"
-                if (f != font) & (t != tag) & os.path.exists(neg_path):
+                neg_path = f"{self.path}/train_whole/{f}/{f}__{t}__{content}.png"
+                if (f != font) & os.path.exists(neg_path):
                     neg_image = Image.open(neg_path).convert("RGB")
                     neg_image = self.transforms(neg_image)
                     if i == 0:

@@ -1,5 +1,44 @@
-
-
+class SampleArgs:
+    def __init__(self, itern):
+        
+        self.bucket_name = "leo_font"
+        self.content_encoder_path=f"exp0820/finetune/finetune__content_encoder_{itern}.pth"
+        self.style_encoder_path=f"exp0820/finetune/finetune__style_encoder_{itern}.pth"
+        self.unet_path=f"exp0820/finetune/finetune__unet_{itern}.pth"
+        self.datapath = "/home/jupyter/ai_font/data"
+        self.contentfd = "/home/jupyter/ai_font/data/exp0820/processed/train_whole"
+        self.stylefd = "/home/jupyter/ai_font/data/exp0820/processed/train_assembled"
+        self.savefd = f"/home/jupyter/ai_font/data/exp0820/report/finetune/i{itern}"
+        self.batchsize = 32
+        self.tag = 'finetune'
+        self.content_font = "시스템굴림"
+        
+        self.device="cuda:0"
+        self.style_image_size = 96
+        self.content_image_size = 96
+        
+        self.resolution = 96
+        self.unet_channels=(64, 128, 256, 512,)
+        self.style_start_channel=64 
+        self.channel_attn=True 
+        self.content_encoder_downsample_size=3 
+        self.content_start_channel=64 
+        self.beta_scheduler="scaled_linear"
+        self.model_type="noise"
+        self.guidance_type="classifier-free"
+        self.guidance_scale=7.5
+        self.seed = 123
+        
+        self.algorithm_type="dpmsolver++"
+        self.num_inference_steps=20
+        self.method="multistep"
+        
+        self.order=2
+        self.t_start=None
+        self.t_end=None
+        self.skip_type="time_uniform"
+        self.correcting_x0_fn=None
+        
 class TrainPhase2Args:
     def __init__(self):
         
@@ -49,4 +88,3 @@ class TrainPhase2Args:
         self.adam_weight_decay = 1e-2
         self.adam_epsilon = 1e-08
         self.max_grad_norm = 1.0
-
