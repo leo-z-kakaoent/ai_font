@@ -2,8 +2,8 @@ class TrainPhase1Args:
     def __init__(self):
         # My Configs
         self.bucket_name = "leo_font"
-        self.savepath = "exp0604/phase1"
-        self.datapath = "/home/jupyter/ai_font/data"
+        self.savepath = "exp0901/0_biginput/phase1"
+        self.datapath = "/home/jupyter/ai_font/data/exp0901/processed"
         self.scr = False
         self.num_neg = None
         self.experiment_name = "phase1"

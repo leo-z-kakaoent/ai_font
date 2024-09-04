@@ -8,6 +8,7 @@ import pandas as pd
 import torch
 from tqdm import tqdm
 from torch.utils.data import Dataset, DataLoader
+from collections import defaultdict
 import torchvision.transforms as transforms
 
 
@@ -43,6 +44,59 @@ def get_nonorm_transform(resolution):
     return nonorm_transform
 
 
+def get_all_korean():
+
+    def nextKorLetterFrom(letter):
+        lastLetterInt = 15572643
+        if not letter:
+            return '가'
+        a = letter
+        b = a.encode('utf8')
+        c = int(b.hex(), 16)
+
+        if c == lastLetterInt:
+            return False
+
+        d = hex(c + 1)
+        e = bytearray.fromhex(d[2:])
+
+        flag = True
+        while flag:
+            try:
+                r = e.decode('utf-8')
+                flag = False
+            except UnicodeDecodeError:
+                c = c+1
+                d = hex(c)
+                e = bytearray.fromhex(d[2:])
+        return e.decode()
+
+    returns = []
+    flag = True
+    k = ''
+    while flag:
+        k = nextKorLetterFrom(k)
+        if k is False:
+            flag = False
+        else:
+            returns.append(k)
+    return returns
+
+def get_font_mapper(path, tag):
+    ak = get_all_korean()
+    fonts = os.listdir(f"{path}/train_whole")
+    font_mapper = defaultdict(list)
+    pbar = tqdm(fonts)
+    for font in pbar:
+        for letter in ak:
+            target_exists = os.path.exists(f"{path}/train_whole/{font}/{font}__{tag}__{letter}.png")
+            style_exists = os.path.exists(f"{path}/train_assembled/{font}/{font}__{tag}__{letter}.png")
+            if target_exists & style_exists:
+                font_mapper[font].append(letter)
+        pbar.set_postfix(font=font)
+    return font_mapper
+
+
 class FontDataset(Dataset):
     def __init__(self, args):
         super().__init__()
@@ -51,10 +105,9 @@ class FontDataset(Dataset):
         self.scr = args.scr
         self.resolution = args.resolution # default
         self.num_neg = args.num_neg
-        self.font_mapper = pd.read_pickle(f"{self.path}/pickle/font_mapper.pickle")
-        self.fonts = self.font_mapper.index
         self.tags = ['closing','dilate','erode']
-        
+        self.font_mapper = get_font_mapper(self.path, 'closing')
+        self.fonts = [k for k in self.font_mapper.keys() if k != "플레이브밤비"]
         self.transforms = get_normal_transform(self.resolution)
         self.nonorm_transforms = get_nonorm_transform(self.resolution)
 
@@ -63,11 +116,11 @@ class FontDataset(Dataset):
         font = self.fonts[index]
         tag = random.choice(self.tags)
         
-        content = random.choice(self.font_mapper.loc[font])
+        content = random.choice(self.font_mapper[font])
         
         style_img_path = f"{self.path}/train_assembled/{font}/{font}__{tag}__{content}.png"
-        content_img_path = f"{self.path}/train/{self.args.content_font}/{self.args.content_font}__closing__{content}.png"
-        target_img_path = f"{self.path}/train/{font}/{font}__{tag}__{content}.png"
+        content_img_path = f"{self.path}/train_whole/{self.args.content_font}/{self.args.content_font}__closing__{content}.png"
+        target_img_path = f"{self.path}/train_whole/{font}/{font}__{tag}__{content}.png"
         
         content_image = self.transforms(Image.open(content_img_path).convert('RGB'))
         style_image = self.transforms(Image.open(style_img_path).convert('RGB'))
@@ -84,22 +137,21 @@ class FontDataset(Dataset):
         
         if self.scr:
             # Get neg image from the different style of the same content
-            neg_names = [f for f in self.target_images if (style not in f)&("__"+content in f)]
-            choose_neg_names = []
-            for i in range(self.num_neg):
-                choose_neg_names.append(random.choice(neg_names))
-
-            # Load neg_images
-            for i, neg_name in enumerate(choose_neg_names):
-                neg_image = Image.open(neg_name).convert("RGB")
-                neg_image = self.transforms(neg_image)
-                if i == 0:
-                    neg_images = neg_image[None, :, :, :]
-                else:
-                    neg_images = torch.cat([neg_images, neg_image[None, :, :, :]], dim=0)
+            i = 0
+            while i < self.num_neg:
+                f = random.choice(self.fonts)
+                t = self.tag
+                neg_path = f"{self.path}/train_whole/{f}/{f}__{t}__{content}.png"
+                if (f != font) & os.path.exists(neg_path):
+                    neg_image = Image.open(neg_path).convert("RGB")
+                    neg_image = self.transforms(neg_image)
+                    if i == 0:
+                        neg_images = neg_image[None, :, :, :]
+                    else:
+                        neg_images = torch.cat([neg_images, neg_image[None, :, :, :]], dim=0)
+                    i += 1
             sample["neg_images"] = neg_images
 
         return sample
-
     def __len__(self):
         return len(self.fonts)
